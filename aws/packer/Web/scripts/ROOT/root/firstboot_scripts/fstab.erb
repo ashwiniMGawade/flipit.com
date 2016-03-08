@@ -1,0 +1,4 @@
+<%- require '/etc/render_templates_env.rb' -%>
+s3fs#<%= Vars.s3[:flipit][:backup] %> /var/www/flipit.com/backup fuse _netdev,allow_other,use_cache=/tmp,url=https://s3-eu-west-1.amazonaws.com,uid=1001,gid=1001,nobootwait 0 0
+s3fs#<%= Vars.s3[:flipit][:language] %> /var/www/flipit.com/language fuse _netdev,ahbe_conf=/etc/s3fs.cfg,allow_other,use_cache=$EPHEMERAL,max_stat_cache_size=20000,stat_cache_expire=3600,uid=33,gid=1001,url=http://s3-eu-west-1.amazonaws.com,nobootwait 0 0
+s3fs#<%= Vars.s3[:flipit][:images] %> /var/www/flipit.com/shared fuse _netdev,ahbe_conf=/etc/s3fs.cfg,allow_other,use_cache=$EPHEMERAL,max_stat_cache_size=20000,stat_cache_expire=3600,uid=33,gid=1001,url=http://s3-eu-west-1.amazonaws.com,nobootwait 0 0

@@ -1,0 +1,256 @@
+{
+  "Parameters": {
+    "WebElbSslCertificate": {
+      "Description": "SSL Certificate for phpmyadmin",
+      "Type": "String",
+      "Default": "arn:aws:iam::555859027902:server-certificate/Webflight"
+    }
+  },
+  "Resources": {
+    "WebElbSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Web ELB Security Group",
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "SecurityGroupIngress": {
+          "Fn::If": [
+            "StackIsLive",
+            [
+              {
+                "Fn::If": [
+                  "EnableVarnishServer",
+                  {
+                    "IpProtocol": "tcp",
+                    "FromPort": "80",
+                    "ToPort": "80",
+                    "SourceSecurityGroupId": {
+                      "Ref": "VarnishSecurityGroup"
+                    }
+                  },
+                  {
+                    "Ref": "AWS::NoValue"
+                  }
+                ]
+              },
+              {
+                "Fn::If": [
+                  "EnableVarnishServer",
+                  {
+                    "IpProtocol": "tcp",
+                    "FromPort": "443",
+                    "ToPort": "443",
+                    "SourceSecurityGroupId": {
+                      "Ref": "VarnishSecurityGroup"
+                    }
+                  },
+                  {
+                    "Ref": "AWS::NoValue"
+                  }
+                ]
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "80",
+                "ToPort": "80",
+                "CidrIp": "0.0.0.0/0"
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "443",
+                "ToPort": "443",
+                "CidrIp": {
+                  "Ref": "GimiscaleCidrBlock"
+                }
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "443",
+                "ToPort": "443",
+                "CidrIp": {
+                  "Ref": "WebflightCidrBlock1"
+                }
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "443",
+                "ToPort": "443",
+                "CidrIp": {
+                  "Ref": "WebflightCidrBlock2"
+                }
+              }
+            ],
+            [
+              {
+                "Fn::If": [
+                  "EnableVarnishServer",
+                  {
+                    "IpProtocol": "tcp",
+                    "FromPort": "80",
+                    "ToPort": "80",
+                    "SourceSecurityGroupId": {
+                      "Ref": "VarnishSecurityGroup"
+                    }
+                  },
+                  {
+                    "Ref": "AWS::NoValue"
+                  }
+                ]
+              },
+              {
+                "Fn::If": [
+                  "EnableVarnishServer",
+                  {
+                    "IpProtocol": "tcp",
+                    "FromPort": "443",
+                    "ToPort": "443",
+                    "SourceSecurityGroupId": {
+                      "Ref": "VarnishSecurityGroup"
+                    }
+                  },
+                  {
+                    "Ref": "AWS::NoValue"
+                  }
+                ]
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "80",
+                "ToPort": "80",
+                "CidrIp": "0.0.0.0/0"
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "443",
+                "ToPort": "443",
+                "CidrIp": "0.0.0.0/0"
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "80",
+                "ToPort": "80",
+                "CidrIp": {
+                  "Ref": "GimiscaleCidrBlock"
+                }
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "80",
+                "ToPort": "80",
+                "CidrIp": {
+                  "Ref": "WebflightCidrBlock1"
+                }
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "80",
+                "ToPort": "80",
+                "CidrIp": {
+                  "Ref": "WebflightCidrBlock2"
+                }
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "443",
+                "ToPort": "443",
+                "CidrIp": {
+                  "Ref": "GimiscaleCidrBlock"
+                }
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "443",
+                "ToPort": "443",
+                "CidrIp": {
+                  "Ref": "WebflightCidrBlock1"
+                }
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "443",
+                "ToPort": "443",
+                "CidrIp": {
+                  "Ref": "WebflightCidrBlock2"
+                }
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "WebElb": {
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Condition": "EnableWebServer",
+      "Properties": {
+        "CrossZone": "true",
+        "Subnets": [
+          {
+            "Ref": "WebElbSubnetA"
+          },
+          {
+            "Ref": "WebElbSubnetB"
+          }
+        ],
+        "HealthCheck": {
+          "HealthyThreshold": "2",
+          "Interval": "20",
+          "Target": "HTTP:80/health.php",
+          "Timeout": "10",
+          "UnhealthyThreshold": "2"
+        },
+        "Policies": [
+          {
+            "PolicyName": "kc-web-ELBSecurityPolicy",
+            "PolicyType": "SSLNegotiationPolicyType",
+            "Attributes": [
+              {
+                "Name": "Reference-Security-Policy",
+                "Value": "ELBSecurityPolicy-2014-10"
+              }
+            ]
+          },
+          {
+            "PolicyName": "AdminStickySessionsPolicy",
+            "PolicyType": "AppCookieStickinessPolicyType",
+            "Attributes": [
+              {
+                "Name": "CookieName",
+                "Value": "passCache"
+              }
+            ]
+          }
+        ],
+        "Listeners": [
+          {
+            "InstancePort": "80",
+            "InstanceProtocol": "HTTP",
+            "LoadBalancerPort": "80",
+            "Protocol": "HTTP",
+            "PolicyNames": [
+              "AdminStickySessionsPolicy"
+            ]
+          },
+          {
+            "InstancePort": "443",
+            "InstanceProtocol": "HTTPS",
+            "LoadBalancerPort": "443",
+            "Protocol": "HTTPS",
+            "SSLCertificateId": {
+              "Ref": "WebElbSslCertificate"
+            },
+            "PolicyNames": [
+              "kc-web-ELBSecurityPolicy",
+              "AdminStickySessionsPolicy"
+            ]
+          }
+        ],
+        "SecurityGroups": [
+          {
+            "Ref": "WebElbSecurityGroup"
+          }
+        ]
+      }
+    }
+  }
+}

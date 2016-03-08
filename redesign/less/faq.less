@@ -1,0 +1,152 @@
+@import "custom-variables.less";
+@import "custom-mixins.less";
+.faq-page {
+	.section-faq{
+		color:@grey-color;
+		font-size:15px;
+		.page-header{
+				h1{
+				color:@text-color;
+				font-size:24px;
+				line-height:28px;
+				margin:0 0 4px;
+			}
+		}
+		h2{
+			color:@text-color;
+			font-size:18px;
+			line-height:22px;
+			margin:0 0 19px;
+		}
+		.block-questions{
+			padding:22px 30px 31px;
+		}
+		.box-holder{
+			margin:0 0 32px;
+			overflow:hidden;
+			.alt2{
+				border-color:#ccc;
+				margin:0;
+			}
+		}
+		.box{
+			.heading{
+				padding:17px 38px 18px 0;
+				overflow:hidden;
+			}
+			.opener{
+				display:inline-block;
+				vertical-align:top;
+				color:@light-blue;
+				position:relative;
+				padding-left:38px;
+				&:before{
+					content:'+';					position:absolute;					left:0;					top:0;					background:@light-blue;					color:@white-color;					font-size:16px;					line-height:16px;
+					font-weight:bold;
+					padding:4px;
+					width:24px;
+					text-align:center;
+					.border-radius;
+				}
+			}
+			.slide{
+				display:none;
+				padding:23px 0 35px;
+				position:relative;
+				p{margin:0 0 26px;}
+				.alt2{
+					position:absolute;
+					left:0;					top:0;
+					width:100%;
+				}
+				.steps{
+					padding:0;					margin:0 0 21px;					list-style:none;
+					overflow:hidden;
+					li{
+						margin:0 0 7px;
+						strong{
+							color:@text-color;
+							margin:0 1px 0 0;
+						}
+					}
+				}
+				.bottom-bar{
+					margin:0;
+					padding:23px 25px 21px 19px;
+				}
+			}
+		}
+		.active{
+			.opener{
+				&:before{
+					content:'-';
+					padding:3px 4px 5px;
+				}
+			}
+			.slide{display:block;}
+		}
+		.bottom-bar{
+			font-size:13px;
+			line-height:16px;
+			background:#e5f1fa;
+			padding:23px 14px 21px;
+			margin:75px 0 0;
+			overflow:hidden;
+			.border-radius;
+			.left{
+				float:left;
+				margin:0 5px 0 0;
+			}
+			.right{
+				float:right;
+				margin:0 0 0 5px;
+			}
+			a{
+				color:@light-blue;
+			}
+		}
+	}
+}
+@media only screen and (max-width: 979px){
+	.faq-page {
+		.section-faq{
+			.block-questions{
+				padding-left:15px;
+				padding-right:15px;
+			}
+			.bottom-bar{
+				margin:55px 0 0;
+				.left, .right{
+					float:none;
+					display:block;
+					margin:0 0 5px;
+				}
+				.right{margin:0;}
+			}
+		}
+	}
+}
+@media only screen and (max-width: 767px){
+	.faq-page {
+		.section-faq{
+			font-size:13px;
+			line-height:18px;
+			.block-questions{
+				padding:15px 10px;
+			}
+			.box{
+				.opener{
+					padding-left:32px;
+					&:before{top:-3px;}
+				}
+				.slide{
+					.bottom-bar{padding:15px;}
+				} 
+			}
+			.bottom-bar{
+				margin:0;
+				padding:15px;
+			}
+		}
+	}
+}

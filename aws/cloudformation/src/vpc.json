@@ -1,0 +1,80 @@
+{
+  "Parameters": {
+    "DetailedMonitoring": {
+      "Description": "Update CloudWatch every minute (true) or every 5 minutes (false)",
+      "Type": "String",
+      "Default": "false",
+      "AllowedValues": [
+        "true",
+        "false"
+      ]
+    },
+    "VpcCidrBlockFirstHalf": {
+      "Description": "IP Block for entire VPC (/16, first two octets only, eg., 10.0)",
+      "Type": "String",
+      "Default": "10.0",
+      "AllowedPattern": "^[0-9]{1,3}\\.[0-9]{1,3}$"
+    },
+    "Hibernate": {
+      "Description": "If true then no pay-per-use resources are created",
+      "Default": "false",
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "VPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "VpcCidrBlockFirstHalf"
+              },
+              ".0.0/16"
+            ]
+          ]
+        },
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true",
+        "InstanceTenancy": "default"
+      }
+    },
+    "InternetGateway": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {}
+    },
+    "GatewayAttachment": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "InternetGatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    },
+    "DefaultRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "DefaultRoute": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "DefaultRouteTable"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,175 @@
+@import "custom-variables.less";
+@import "custom-mixins.less";
+.pop{
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#f2f2f2',GradientType=0 );
+	&:hover{
+		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e6e6e6',GradientType=0 );
+	}
+}
+.btn.blue{
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#43a5e5', endColorstr='#2983c0',GradientType=0 );
+	&:hover{
+		filter:none;
+		background: #1a73bc;
+	}
+}
+.btn.btn-print{
+	min-width:113px;
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ec4dee', endColorstr='#c922cb',GradientType=0 );
+	&:hover{
+		filter:none;
+		background:#b91cbb;
+	}
+}
+.navigation{filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#434241', endColorstr='#353434',GradientType=1 );}
+.tips-section{
+	.block{
+		a{
+			.image{
+				&:after{
+					background:url(../images/mask.png);
+				}
+				.title{background:url(../images/mask.png);}
+			}
+		}
+	}
+}
+.tips-section-2{
+	.block{
+		a{
+			.image{
+				&:after{
+					background:none;
+				}
+			}
+		}
+	}
+}
+.btn.orange{
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e9963e', endColorstr='#e2822b',GradientType=0 );
+	&:hover{
+		filter:none;
+		background:#da7e1b;
+	}
+}
+.btn.btn-code{
+	background:#e9963e url(../images/bg-btn.png);
+	filter:none;
+	&:hover{
+		background:#e9963e url(../images/bg-btn.png);
+		filter:none;
+	}
+}
+#sidebar{
+	.block.block-image{
+		.box{
+			background:#000;
+		}
+	}
+}
+.item-block{
+	.item{
+		.caption{
+			background:url(../images/mask.png);
+		}
+	}
+}
+.panel{filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3f3f3d', endColorstr='#363535',GradientType=0 );}
+.banner-block{
+	.bar{
+		background:url(../images/mask.png);
+	}
+	.carousel{
+		.holder{
+			border-bottom:1px solid #e7e9ec;
+		}
+	}
+	.switcher{
+		margin:-1px 0 0;
+		li{
+			border-left:1px solid #e7e9ec;
+			&:first-child{border:none;}
+		}
+	}
+}
+.item-block{
+	.item{
+		.link{
+			background:@white-color;
+		}
+	}
+}
+.catigories{
+	.box{
+		a{
+			&:hover{
+				.image{
+					&:before{
+						background:#383837;
+					}
+				}
+				.caption{
+					background:#202020;
+				}
+			}
+		}
+	}
+}
+.logos-panel{
+	filter:none;
+	background:#fff;
+}
+.vouchers ul a{
+	min-height:45px;
+}
+@media only screen and (max-width: 767px){
+	.logos-section{
+		ul{
+			img{
+				width:auto;
+				max-width:auto;
+			}
+		}
+	}
+}
+@media only screen and (max-width: 479px){
+	.banner-block{
+		.switcher{
+			li{
+				border-left:0;
+				border-top:1px solid #e7e9ec;
+			}
+			.active{
+				a{
+					&:after{
+						top:-1px;
+					}
+				}
+			}
+			a{
+				&:hover,
+				&:focus{
+					&:after,
+					&:focus:after{
+						top:-1px;
+					}
+				}
+			}
+		}
+	}
+}
+@media only screen and (max-width: 1199px){
+	.banner-block{
+		.flipit-text{
+			filter:progid:dximagetransform.microsoft.alphaimageloader(src='images/flipit-text.png', sizingmethod='scale');
+			background:none;
+		}
+	}
+}
+.catigories{
+	.image{
+		&:before{
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#a6000000',GradientType=0 );
+		}
+	}
+}

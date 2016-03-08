@@ -1,0 +1,12 @@
+---
+:schedule:
+  :auto_scaling_groups:
+    WebAutoscalingGroup:
+      - :name: 'MidnightScaleOut'
+        :min_size: 4
+        :desired_capacity: 4
+        :recurrence: "56 22 * * *"
+      - :name: 'AfterMidnightScaleIn'
+        :min_size: 2
+        :desired_capacity: 4
+        :recurrence: "40 23 * * *"

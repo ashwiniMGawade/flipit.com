@@ -1,0 +1,14 @@
+{
+  "Parameters": {
+    "AzAIndex": {
+      "Description": "Index for AvailabilityZone A",
+      "Type": "Number",
+      "Default": 0
+    },
+    "AzBIndex": {
+      "Description": "Index for AvailabilityZone B",
+      "Type": "Number",
+      "Default": 1
+    }
+  }
+}

@@ -1,0 +1,876 @@
+{
+  "Parameters": {
+    "AwsRegion": {
+      "Description": "Region to deploy in",
+      "Type": "String",
+      "Default": "eu-west-1"
+    },
+    "WebScaleOutAdjustment": {
+      "Description": "Number of instances to scale out by for Webserver",
+      "Type": "Number",
+      "Default": 2
+    },
+    "WebScaleInAdjustment": {
+      "Description": "Number of instances to scale in by for Webserver",
+      "Type": "Number",
+      "Default": -1
+    },
+    "WebServerPresent": {
+      "Description": "If false, then no webservers are created",
+      "Default": "true",
+      "Type": "String"
+    },
+    "WebHealthCheckGracePeriod": {
+      "Description": "Health check grace period for Web autoscaling group",
+      "Type": "Number",
+      "Default": 150
+    },
+    "WebBuildRelease": {
+      "Description": "Release to be deployed",
+      "Type": "String",
+      "Default": "rc2.0.5.2"
+    },
+    "WebBuildEnvironment": {
+      "Description": "Environment to be deployed",
+      "Type": "String",
+      "Default": "acceptance"
+    },
+    "WebAMI": {
+      "Description": "(CHANGEME) AMI for Web Instances",
+      "Type": "String",
+      "Default": "ami-7d92420a"
+    },
+    "WebInstanceType": {
+      "Description": "(CHANGEME) Instance Type for Web Instances",
+      "Type": "String",
+      "Default": "c3.large"
+    },
+    "WebCronInstanceType": {
+      "Description": "(CHANGEME) Instance Type for Cron Instances",
+      "Type": "String",
+      "Default": "m1.small"
+    },
+    "WebMinInstances": {
+      "Description": "(CHANGEME) Minimum amount of Instances",
+      "Type": "Number",
+      "Default": 1
+    },
+    "WebDesiredInstances": {
+      "Description": "(CHANGEME) Desired amount of Instances",
+      "Type": "Number",
+      "Default": 2
+    },
+    "WebMaxInstances": {
+      "Description": "(CHANGEME) Maximum amount of Instances",
+      "Type": "Number",
+      "Default": 4
+    },
+    "S3LanguageBucket": {
+      "Description": "Name of language bucket",
+      "Type": "String",
+      "Default": "languagefiles.acceptance"
+    },
+    "S3ImagesBucket": {
+      "Description": "Name of images bucket",
+      "Type": "String",
+      "Default": "imgacceptance.flipit.com"
+    },
+    "KCImagesBucket": {
+      "Description": "Name of images bucket",
+      "Type": "String",
+      "Default": "imgacceptance.kortingscode.nl"
+    },
+    "S3BackupBucket": {
+      "Description": "Name of backup bucket",
+      "Type": "String",
+      "Default": "backup.acceptance"
+    },
+    "CronServerPresent": {
+      "Description": "Cron server will be created if true",
+      "Type": "String",
+      "Default": "true"
+    },
+    "WebMinInstancesInService": {
+      "Description": "Min Instances in Service during updates",
+      "Type": "String",
+      "Default": "1"
+    },
+    "WebPauseTime": {
+      "Description": "Pause Time during updates",
+      "Type": "String",
+      "Default": "PT3M30S"
+    },
+    "WebCpuAlarmHighDurationMinutes": {
+      "Description": "Evaluation period in minutes for the Web CPU High alarm",
+      "Type": "String",
+      "Default": "1"
+    },
+    "NewRelicLicenseKey": {
+      "Description": "New Relic Licence Key",
+      "Type": "String",
+      "Default": ""
+    }
+  },
+  "Conditions": {
+    "EnableCronServer": {
+      "Fn::And": [
+        {
+          "Fn::Equals": [
+            "true",
+            {
+              "Ref": "CronServerPresent"
+            }
+          ]
+        },
+        {
+          "Fn::Equals": [
+            "false",
+            {
+              "Ref": "Hibernate"
+            }
+          ]
+        }
+      ]
+    },
+    "EnableWebServer": {
+      "Fn::And": [
+        {
+          "Fn::Not": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "WebServerPresent"
+                },
+                "false"
+              ]
+            }
+          ]
+        },
+        {
+          "Fn::Equals": [
+            "false",
+            {
+              "Ref": "Hibernate"
+            }
+          ]
+        }
+      ]
+    },
+    "NewRelicKeyPresent": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "NewRelicLicenseKey"
+            },
+            ""
+          ]
+        }
+      ]
+    }
+  },
+  "Resources": {
+    "WebSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "DependsOn": "WebElbSecurityGroup",
+      "Properties": {
+        "GroupDescription": "Web Server Security Group",
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "80",
+            "ToPort": "80",
+            "SourceSecurityGroupId": {
+              "Ref": "WebElbSecurityGroup"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "443",
+            "ToPort": "443",
+            "SourceSecurityGroupId": {
+              "Ref": "WebElbSecurityGroup"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": {
+              "Ref": "GimiscaleCidrBlock"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": {
+              "Ref": "WebflightCidrBlock1"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": {
+              "Ref": "WebflightCidrBlock2"
+            }
+          }
+        ]
+      }
+    },
+    "WebLaunchConfiguration": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Condition": "EnableWebServer",
+      "Properties": {
+        "AssociatePublicIpAddress": true,
+        "InstanceType": {
+          "Ref": "WebInstanceType"
+        },
+        "EbsOptimized": "false",
+        "ImageId": {
+          "Ref": "WebAMI"
+        },
+        "IamInstanceProfile": "arn:aws:iam::555859027902:instance-profile/aws-log-submitter",
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "\n",
+              [
+                "#!/bin/sh",
+                "cat <<'EOF'>/etc/render_templates_env.d/rds.rb",
+                "Vars.rds ||= {}",
+                "Vars.rds[:flipit] = {",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  endpoint: '",
+                      {
+                        "Fn::If": [
+                          "EnableRdsDb",
+                          {
+                            "Fn::GetAtt": [
+                              "RdsInstance",
+                              "Endpoint.Address"
+                            ]
+                          },
+                          {
+                            "Ref": "AWS::NoValue"
+                          }
+                        ]
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  username: '",
+                      {
+                        "Ref": "RdsMasterUsername"
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  password: '",
+                      {
+                        "Ref": "RdsMasterUserPassword"
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                "}",
+                "EOF",
+                "cat <<'EOF'>/etc/render_templates_env.d/s3.rb",
+                "Vars.s3 ||= {}",
+                "Vars.s3[:flipit] = {",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  language: '",
+                      {
+                        "Ref": "S3LanguageBucket"
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  images: '",
+                      {
+                        "Ref": "S3ImagesBucket"
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  backup: '",
+                      {
+                        "Ref": "S3BackupBucket"
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                "}",
+                "Vars.s3[:kc] = {",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  images: '",
+                      {
+                        "Ref": "KCImagesBucket"
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                "}",
+                "EOF",
+                "cat <<'EOF'>/etc/render_templates_env.d/misc.rb",
+                "Vars.misc ||= {}",
+                "Vars.misc[:flipit] = {",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  subdomain: '",
+                      {
+                        "Ref": "SubdomainName"
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                "}",
+                "EOF",
+                "cat <<'EOF'>/etc/render_templates_env.d/memcached.rb",
+                "Vars.memcached ||= {}",
+                "Vars.memcached[:flipit] = {",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  uri: '",
+                      {
+                        "Fn::Join": [
+                          ":",
+                          [
+                            {
+                              "Fn::If": [
+                                "EnableMemcached",
+                                {
+                                  "Fn::GetAtt": [
+                                    "MemcachedCacheCluster",
+                                    "ConfigurationEndpoint.Address"
+                                  ]
+                                },
+                                {
+                                  "Ref": "AWS::NoValue"
+                                }
+                              ]
+                            },
+                            "11211"
+                          ]
+                        ]
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                "}",
+                "EOF",
+                "/usr/sbin/render_templates",
+                {
+                  "Fn::If": [
+                    "NewRelicKeyPresent",
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "echo 'newrelic.license=",
+                          {
+                            "Ref": "NewRelicLicenseKey"
+                          },
+                          "' >> /etc/php5/mods-available/newrelic.ini"
+                        ]
+                      ]
+                    },
+                    ""
+                  ]
+                },
+                {
+                  "Fn::If": [
+                    "NewRelicKeyPresent",
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "nrsysmond-config --set license_key=",
+                          {
+                            "Ref": "NewRelicLicenseKey"
+                          }
+                        ]
+                      ]
+                    },
+                    ""
+                  ]
+                },
+                "/etc/init.d/newrelic-sysmond start",
+                "/root/firstboot_scripts/s3fs_mount.sh /root/firstboot_scripts/fstab",
+                "sudo mount /var/www/flipit.com/shared",
+                "sudo mount /var/www/flipit.com/backup",
+                "sudo mount /var/www/flipit.com/language",
+                "export PATH=/home/ubuntu/node/node_modules/.bin/:$PATH",
+                "export LESSC_PATH=/home/ubuntu/node/node_modules/.bin/",
+                "chmod 744 /var/www/flipit.com/deploy.sh",
+                "cd /var/www/flipit.com",
+                "sudo -u flipit git pull",
+                "echo 'Feching tags for flipit_application submodule'",
+                "sudo -u flipit git submodule foreach git fetch -t",
+                "cd /var/www/flipit.com",
+                {
+                  "Fn::Join": [
+                    " ",
+                    [
+                      "sudo -u flipit PATH=$LESSC_PATH:$PATH /var/www/flipit.com/deploy.sh",
+                      {
+                        "Ref": "WebBuildRelease"
+                      },
+                      {
+                        "Ref": "WebBuildEnvironment"
+                      }
+                    ]
+                  ]
+                },
+                "service apache2 restart"
+              ]
+            ]
+          }
+        },
+        "InstanceMonitoring": false,
+        "SecurityGroups": [
+          {
+            "Ref": "WebSecurityGroup"
+          }
+        ]
+      }
+    },
+    "CronLaunchConfiguration": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Condition": "EnableCronServer",
+      "Properties": {
+        "AssociatePublicIpAddress": true,
+        "InstanceType": {
+          "Ref": "WebCronInstanceType"
+        },
+        "EbsOptimized": "false",
+        "ImageId": {
+          "Ref": "WebAMI"
+        },
+        "IamInstanceProfile": "arn:aws:iam::555859027902:instance-profile/aws-log-submitter",
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "\n",
+              [
+                "#!/bin/sh",
+                "cat <<'EOF'>/etc/render_templates_env.d/rds.rb",
+                "Vars.rds ||= {}",
+                "Vars.rds[:flipit] = {",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  endpoint: '",
+                      {
+                        "Fn::GetAtt": [
+                          "RdsInstance",
+                          "Endpoint.Address"
+                        ]
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  username: '",
+                      {
+                        "Ref": "RdsMasterUsername"
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  password: '",
+                      {
+                        "Ref": "RdsMasterUserPassword"
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                "}",
+                "EOF",
+                "cat <<'EOF'>/etc/render_templates_env.d/s3.rb",
+                "Vars.s3 ||= {}",
+                "Vars.s3[:flipit] = {",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  language: '",
+                      {
+                        "Ref": "S3LanguageBucket"
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  images: '",
+                      {
+                        "Ref": "S3ImagesBucket"
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  backup: '",
+                      {
+                        "Ref": "S3BackupBucket"
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                "}",
+                "Vars.s3[:kc] = {",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  images: '",
+                      {
+                        "Ref": "KCImagesBucket"
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                "}",
+                "EOF",
+                "cat <<'EOF'>/etc/render_templates_env.d/misc.rb",
+                "Vars.misc ||= {}",
+                "Vars.misc[:flipit] = {",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  subdomain: '",
+                      {
+                        "Ref": "SubdomainName"
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                "}",
+                "EOF",
+                "cat <<'EOF'>/etc/render_templates_env.d/memcached.rb",
+                "Vars.memcached ||= {}",
+                "Vars.memcached[:flipit] = {",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  uri: '",
+                      {
+                        "Fn::Join": [
+                          ":",
+                          [
+                            {
+                              "Fn::GetAtt": [
+                                "MemcachedCacheCluster",
+                                "ConfigurationEndpoint.Address"
+                              ]
+                            },
+                            "11211"
+                          ]
+                        ]
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                "}",
+                "EOF",
+                "/usr/sbin/render_templates",
+                "/root/firstboot_scripts/s3fs_mount.sh /root/firstboot_scripts/fstab",
+                "sudo mount /var/www/flipit.com/shared",
+                "sudo mount /var/www/flipit.com/backup",
+                "sudo mount /var/www/flipit.com/language",
+                "export PATH=/home/ubuntu/node/node_modules/.bin/:$PATH",
+                "export LESSC_PATH=/home/ubuntu/node/node_modules/.bin/",
+                "chmod 744 /var/www/flipit.com/deploy.sh",
+                "cd /var/www/flipit.com",
+                "sudo -u flipit git pull",
+                "cd flipit_application && git fetch -t ",
+                "cd /var/www/flipit.com",
+                {
+                  "Fn::Join": [
+                    " ",
+                    [
+                      "sudo -u flipit PATH=$LESSC_PATH:$PATH /var/www/flipit.com/deploy.sh",
+                      {
+                        "Ref": "WebBuildRelease"
+                      },
+                      {
+                        "Ref": "WebBuildEnvironment"
+                      }
+                    ]
+                  ]
+                },
+                "service apache2 restart"
+              ]
+            ]
+          }
+        },
+        "InstanceMonitoring": false,
+        "SecurityGroups": [
+          {
+            "Ref": "WebSecurityGroup"
+          }
+        ]
+      }
+    },
+    "WebAutoscalingGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Condition": "EnableWebServer",
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinInstancesInService": {
+            "Ref": "WebMinInstancesInService"
+          },
+          "MaxBatchSize": "1",
+          "PauseTime": {
+            "Ref": "WebPauseTime"
+          }
+        }
+      },
+      "Properties": {
+        "LaunchConfigurationName": {
+          "Ref": "WebLaunchConfiguration"
+        },
+        "AvailabilityZones": [
+          {
+            "Fn::Select": [
+              0,
+              {
+                "Fn::GetAZs": ""
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              1,
+              {
+                "Fn::GetAZs": ""
+              }
+            ]
+          }
+        ],
+        "VPCZoneIdentifier": [
+          {
+            "Ref": "WebSubnetA"
+          },
+          {
+            "Ref": "WebSubnetB"
+          }
+        ],
+        "LoadBalancerNames": [
+          {
+            "Ref": "WebElb"
+          }
+        ],
+        "MinSize": {
+          "Ref": "WebMinInstances"
+        },
+        "DesiredCapacity": {
+          "Ref": "WebDesiredInstances"
+        },
+        "MaxSize": {
+          "Ref": "WebMaxInstances"
+        },
+        "HealthCheckType": "EC2",
+        "HealthCheckGracePeriod": {
+          "Ref": "WebHealthCheckGracePeriod"
+        }
+      }
+    },
+    "CronAutoscalingGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Condition": "EnableCronServer",
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinInstancesInService": "1",
+          "MaxBatchSize": "1",
+          "PauseTime": "PT3M30S"
+        }
+      },
+      "Properties": {
+        "LaunchConfigurationName": {
+          "Ref": "CronLaunchConfiguration"
+        },
+        "AvailabilityZones": [
+          {
+            "Fn::Select": [
+              0,
+              {
+                "Fn::GetAZs": ""
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              1,
+              {
+                "Fn::GetAZs": ""
+              }
+            ]
+          }
+        ],
+        "VPCZoneIdentifier": [
+          {
+            "Ref": "WebSubnetA"
+          },
+          {
+            "Ref": "WebSubnetB"
+          }
+        ],
+        "MinSize": 1,
+        "DesiredCapacity": 1,
+        "MaxSize": 2
+      }
+    },
+    "WebScaleUpPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Condition": "EnableWebServer",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "WebAutoscalingGroup"
+        },
+        "Cooldown": "300",
+        "ScalingAdjustment": {
+          "Ref": "WebScaleOutAdjustment"
+        }
+      }
+    },
+    "WebScaleDownPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Condition": "EnableWebServer",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "WebAutoscalingGroup"
+        },
+        "Cooldown": "300",
+        "ScalingAdjustment": {
+          "Ref": "WebScaleInAdjustment"
+        }
+      }
+    },
+    "CPUAlarmHigh": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Condition": "EnableWebServer",
+      "Properties": {
+        "AlarmDescription": "Scale-up if CPU > 60% for 2 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "60",
+        "EvaluationPeriods": {
+          "Ref": "WebCpuAlarmHighDurationMinutes"
+        },
+        "Threshold": "60",
+        "AlarmActions": [
+          {
+            "Ref": "WebScaleUpPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "WebAutoscalingGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold"
+      }
+    },
+    "CPUAlarmLow": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Condition": "EnableWebServer",
+      "Properties": {
+        "AlarmDescription": "Scale-down if CPU < 20% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "20",
+        "AlarmActions": [
+          {
+            "Ref": "WebScaleDownPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "WebAutoscalingGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    }
+  }
+}

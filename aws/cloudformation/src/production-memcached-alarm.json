@@ -1,0 +1,56 @@
+{
+  "Resources": {
+    "ProductionMemcachedFreeMemoryAlarmLow": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Condition": "EnableMemcached",
+      "Properties": {
+        "AlarmDescription": " Free memory is below 100mb",
+        "MetricName": "FreeableMemory",
+        "Namespace": "AWS/ElastiCache",
+        "Statistic": "Minimum",
+        "Period": "60",
+        "EvaluationPeriods": "2",
+        "Threshold": "104857600",
+        "AlarmActions": [
+          {
+            "Ref": "FlipitProductionMemcachedFreeableMemoryLowSNSTopic"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "CacheClusterId",
+            "Value": {
+              "Ref": "MemcachedCacheCluster"
+            }
+          },
+          {
+            "Name": "CacheNodeId",
+            "Value": "0001"
+          }
+        ],
+        "ComparisonOperator": "LessThanOrEqualToThreshold"
+      }
+    },
+    "FlipitProductionMemcachedFreeableMemoryLowSNSTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "Subscription": [
+          {
+            "Endpoint": {
+              "Ref": "SNSSubscriptionEmail1"
+            },
+            "Protocol": "email"
+          },
+          {
+            "Endpoint": {
+              "Ref": "SNSSubscriptionEmail2"
+            },
+            "Protocol": "email"
+          }
+        ],
+        "DisplayName": "FlipitProductionMemcachedFreeableMemoryLowSNSTopic",
+        "TopicName": "FlipitProductionMemcachedFreeableMemoryLowSNSTopic"
+      }
+    }
+  }
+}

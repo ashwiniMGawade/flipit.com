@@ -1,0 +1,3 @@
+00 20 * * * root service varnish restart
+30 02 * * * root service nginx restart
+* * * * * root /usr/bin/perl /etc/nginx/watch-nginx.pl

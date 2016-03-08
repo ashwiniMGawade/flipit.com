@@ -1,0 +1,134 @@
+{
+  "Parameters": {
+    "CdnPresent": {
+      "Description": "(CHANGEME) If false, Cloudfront distribution will not be created",
+      "Type": "String",
+      "Default": "true"
+    }
+  },
+  "Conditions": {
+    "EnableCloudfront": {
+      "Fn::And": [
+        {
+          "Fn::Equals": [
+            "true",
+            {
+              "Ref": "CdnPresent"
+            }
+          ]
+        },
+        {
+          "Fn::Equals": [
+            "false",
+            {
+              "Ref": "Hibernate"
+            }
+          ]
+        }
+      ]
+    },
+    "EnableCloudfrontRecordSet": {
+      "Fn::And": [
+        {
+          "Fn::Equals": [
+            "true",
+            {
+              "Ref": "CdnPresent"
+            }
+          ]
+        },
+        {
+          "Fn::Equals": [
+            "false",
+            {
+              "Ref": "Hibernate"
+            }
+          ]
+        },
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "CreateDnsRecords"
+            },
+            "true"
+          ]
+        },
+        {
+          "Fn::Not": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "HostedZoneName"
+                },
+                ""
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "Resources": {
+    "S3Distribution": {
+      "Type": "AWS::CloudFront::Distribution",
+      "Condition": "EnableCloudfront",
+      "Properties": {
+        "DistributionConfig": {
+          "Origins": [
+            {
+              "DomainName": {
+                "Fn::Join": [
+                  "",
+                  [
+                    {
+                      "Ref": "S3ImagesBucket"
+                    },
+                    ".s3.amazonaws.com"
+                  ]
+                ]
+              },
+              "Id": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "S3-",
+                    {
+                      "Ref": "S3ImagesBucket"
+                    }
+                  ]
+                ]
+              },
+              "S3OriginConfig": {}
+            }
+          ],
+          "Enabled": "true",
+          "Aliases": [
+            {
+              "Ref": "S3ImagesBucket"
+            },
+            {
+              "Ref": "KCImagesBucket"
+            }
+          ],
+          "DefaultCacheBehavior": {
+            "TargetOriginId": {
+              "Fn::Join": [
+                "",
+                [
+                  "S3-",
+                  {
+                    "Ref": "S3ImagesBucket"
+                  }
+                ]
+              ]
+            },
+            "ForwardedValues": {
+              "QueryString": "false"
+            },
+            "ViewerProtocolPolicy": "allow-all"
+          }
+        }
+      }
+    }
+  }
+}

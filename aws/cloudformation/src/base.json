@@ -1,0 +1,9 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Kortingscode/Flipit template",
+  "Parameters": {},
+  "Mappings": {},
+  "Conditions": {},
+  "Resources": {},
+  "Outputs": {}
+}

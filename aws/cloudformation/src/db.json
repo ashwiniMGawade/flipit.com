@@ -1,0 +1,272 @@
+{
+  "Parameters": {
+    "DbAMI": {
+      "Description": "(CHANGEME) AMI for Database Instances",
+      "Type": "String",
+      "Default": "ami-808675f7"
+    },
+    "DbInstanceType": {
+      "Description": "(CHANGEME) Instance Type for Database Instances",
+      "Type": "String",
+      "Default": "c3.2xlarge"
+    },
+    "DbKeyName": {
+      "Description": "(SSH) KeyName for Database",
+      "Type": "String",
+      "Default": "database"
+    }
+  },
+  "Mappings": {
+    "DatabaseInstanceMap": {
+      "Db1": {
+        "Name": "DB01",
+        "IP": "172.29.240.171"
+      },
+      "Db2": {
+        "Name": "DB02",
+        "IP": "172.29.240.172"
+      }
+    }
+  },
+  "Resources": {
+    "DatabaseSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Database Instances",
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "3306",
+            "ToPort": "3306",
+            "CidrIp": {
+              "Ref": "VpcCidrBlock"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "11211",
+            "ToPort": "11211",
+            "CidrIp": {
+              "Ref": "VpcCidrBlock"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "5672",
+            "ToPort": "5672",
+            "CidrIp": {
+              "Ref": "VpcCidrBlock"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "4369",
+            "ToPort": "4369",
+            "CidrIp": {
+              "Fn::Join": [
+                "/",
+                [
+                  {
+                    "Fn::FindInMap": [
+                      "DatabaseInstanceMap",
+                      "Db2",
+                      "IP"
+                    ]
+                  },
+                  "32"
+                ]
+              ]
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "4369",
+            "ToPort": "4369",
+            "CidrIp": {
+              "Fn::Join": [
+                "/",
+                [
+                  {
+                    "Fn::FindInMap": [
+                      "DatabaseInstanceMap",
+                      "Db1",
+                      "IP"
+                    ]
+                  },
+                  "32"
+                ]
+              ]
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "35197",
+            "ToPort": "35197",
+            "CidrIp": {
+              "Fn::Join": [
+                "/",
+                [
+                  {
+                    "Fn::FindInMap": [
+                      "DatabaseInstanceMap",
+                      "Db1",
+                      "IP"
+                    ]
+                  },
+                  "32"
+                ]
+              ]
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "35197",
+            "ToPort": "35197",
+            "CidrIp": {
+              "Fn::Join": [
+                "/",
+                [
+                  {
+                    "Fn::FindInMap": [
+                      "DatabaseInstanceMap",
+                      "Db2",
+                      "IP"
+                    ]
+                  },
+                  "32"
+                ]
+              ]
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": {
+              "Ref": "VpcCidrBlock"
+            }
+          }
+        ]
+      }
+    },
+    "DB01": {
+      "Type": "AWS::EC2::Instance",
+      "Metadata": {
+        "Comment": "Database Instance (MySQL)"
+      },
+      "Properties": {
+        "ImageId": {
+          "Ref": "DbAMI"
+        },
+        "InstanceType": {
+          "Ref": "DbInstanceType"
+        },
+        "KeyName": {
+          "Ref": "DbKeyName"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::FindInMap": [
+                "DatabaseInstanceMap",
+                "Db1",
+                "Name"
+              ]
+            }
+          },
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          }
+        ],
+        "NetworkInterfaces": [
+          {
+            "GroupSet": [
+              {
+                "Ref": "DatabaseSecurityGroup"
+              }
+            ],
+            "PrivateIpAddress": {
+              "Fn::FindInMap": [
+                "DatabaseInstanceMap",
+                "Db1",
+                "IP"
+              ]
+            },
+            "AssociatePublicIpAddress": "true",
+            "DeviceIndex": "0",
+            "DeleteOnTermination": "true",
+            "SubnetId": {
+              "Ref": "PublicSubnet"
+            }
+          }
+        ]
+      },
+      "DependsOn": "VPC"
+    },
+    "DB02": {
+      "Type": "AWS::EC2::Instance",
+      "Metadata": {
+        "Comment": "Database Instance (MySQL)"
+      },
+      "Properties": {
+        "ImageId": {
+          "Ref": "DbAMI"
+        },
+        "InstanceType": {
+          "Ref": "DbInstanceType"
+        },
+        "KeyName": {
+          "Ref": "DbKeyName"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::FindInMap": [
+                "DatabaseInstanceMap",
+                "Db2",
+                "Name"
+              ]
+            }
+          },
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          }
+        ],
+        "NetworkInterfaces": [
+          {
+            "GroupSet": [
+              {
+                "Ref": "DatabaseSecurityGroup"
+              }
+            ],
+            "PrivateIpAddress": {
+              "Fn::FindInMap": [
+                "DatabaseInstanceMap",
+                "Db2",
+                "IP"
+              ]
+            },
+            "AssociatePublicIpAddress": "true",
+            "DeviceIndex": "0",
+            "DeleteOnTermination": "true",
+            "SubnetId": {
+              "Ref": "PublicSubnet"
+            }
+          }
+        ]
+      },
+      "DependsOn": "VPC"
+    }
+  }
+}

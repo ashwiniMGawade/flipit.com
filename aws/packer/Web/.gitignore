@@ -1,0 +1,31 @@
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# DB backups
+######################
+dbbackups/
+
+# excluded dirs
+######################
+environment/environment.txt
+releases/*
+shared/*
+current
+history_deploy.txt
+
+# AWS AMI compilation output
+stdout.txt
+export_secrets.sh

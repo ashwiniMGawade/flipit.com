@@ -1,0 +1,16 @@
+{
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Action": "Update:*",
+      "Principal": "*",
+      "Resource" : ["LogicalResourceId/RdsInstance"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "Update:*",
+      "Principal": "*",
+      "Resource": "*"
+    }
+  ]
+}

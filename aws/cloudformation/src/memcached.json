@@ -1,0 +1,89 @@
+{
+  "Parameters": {
+    "MemcachedType": {
+      "Description": "(CHANGEME) Instance Type for Memcached cluster",
+      "Type": "String",
+      "Default": "cache.m1.small"
+    },
+    "MemcachedPresent": {
+      "Description": "If false, then memcached is not created",
+      "Default": "true",
+      "Type": "String"
+    },
+    "SNSSubscriptionEmail1": {
+      "Description": "Email to notify on Cloudwatch alarms",
+      "Default": "support@gimiscale.com",
+      "Type": "String"
+    },
+    "SNSSubscriptionEmail2": {
+      "Description": "Email to notify on Cloudwatch alarms",
+      "Default": "kim@web-flight.nl",
+      "Type": "String"
+    }
+  },
+  "Conditions": {
+    "EnableMemcached": {
+      "Fn::And": [
+        {
+          "Fn::Not": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "MemcachedPresent"
+                },
+                "false"
+              ]
+            }
+          ]
+        },
+        {
+          "Fn::Equals": [
+            "false",
+            {
+              "Ref": "Hibernate"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "Resources": {
+    "MemcachedCacheCluster": {
+      "Condition": "EnableMemcached",
+      "Type": "AWS::ElastiCache::CacheCluster",
+      "Properties": {
+        "AutoMinorVersionUpgrade": true,
+        "CacheNodeType": "cache.m3.medium",
+        "CacheSubnetGroupName": {
+          "Ref": "MemcachedSubnetGroup"
+        },
+        "Engine": "memcached",
+        "NumCacheNodes": "1",
+        "VpcSecurityGroupIds": [
+          {
+            "Ref": "MemcachedSecurityGroup"
+          }
+        ]
+      }
+    },
+    "MemcachedSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "ELB Security Group for Memcached",
+        "SecurityGroupIngress": [
+          {
+            "FromPort": 11211,
+            "IpProtocol": "tcp",
+            "SourceSecurityGroupId": {
+              "Ref": "WebSecurityGroup"
+            },
+            "ToPort": 11211
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,242 @@
+@import "custom-variables.less";
+@import "custom-mixins.less";
+.author-page {
+	.section-author{
+		.heading{
+			overflow:hidden;			padding:26px 30px 32px;
+			.icon{
+				float:left;
+				box-shadow: 0 0 2px 1px rgba(0,0,0,.2);
+				.border-radius;
+				margin:4px 30px 0 0;
+				img{
+					display:block;
+					.border-radius;
+				}
+			}
+			.box{
+				overflow:hidden;
+			}
+			h1{
+				font-size:40px;
+				line-height:42px;
+				margin:0 0 4px;
+			}
+			.status{
+				display:inline-block;
+				vertical-align:middle;
+				text-transform:uppercase;
+				color:@white-color;
+				font-size:12px;
+				line-height:14px;				background:@blue-color;				padding:2px 7px;
+				margin:0 0 0 3px;
+				.border-radius;
+			}
+		}
+		.author-details{
+			padding:0;
+			margin:0;
+			list-style:none;
+			li{margin:0 24px 0 0;}
+			li, img, span{
+				display:inline-block;
+				vertical-align:middle;
+			}
+			img{
+				margin:0 4px 0 0;
+			}
+		}
+		.text-block{
+			font-size:14px;			line-height:24px;
+			overflow:hidden;			padding:23px 27px 4px;
+			border-top:1px solid @page-header-border-color;
+			p{margin:0 0 24px;}
+		}
+		.box-statistics{
+			border-width:1px 0;			border-style:solid;			border-color:@page-header-border-color;
+			overflow:hidden;
+			.col{
+				float:left;
+				width:50%;
+				font-size:33px;
+				line-height:36px;
+				border-left:1px solid @page-header-border-color;
+				padding:30px 10px 40px;
+				text-align:center;
+			}
+			.add{
+				display:block;
+				padding:14px 0 0;
+				color:@light-blue;
+				span{
+					display:inline-block;
+					vertical-align:middle;
+					font-size:14px;
+					line-height:18px;
+					color:@text-color;
+					margin:0 0 0 4px;
+				}
+			}
+			.quantity{
+				font-weight:normal;
+				display:inline-block;
+				vertical-align:middle;
+			}
+			&:first-child{border:none;}
+		}
+		.bottom{
+			padding:26px 27px;
+			overflow:hidden;
+			h2{
+				font-size:21px;
+				line-height:25px;
+				font-weight:normal;
+				margin:0 0 29px;
+			}		}
+		.shops{
+			margin-right:-13.5%;
+			img{
+				border:1px solid @page-header-border-color;
+				.border-radius;
+			}
+		}
+	}
+	.tips-section{
+		margin:0 0 26px;
+		.block{
+			padding:30px 29px;
+			margin:0;
+			a{
+				border:none;
+				.box{
+					padding:2px 30px;
+					h2{
+						font-size:16px;
+						color:@light-blue;
+						text-decoration:underline;
+						margin:0 0 7px;
+					}
+				}
+				&:hover,
+				&:focus{
+					color:@grey-color;
+					background:none;
+				}
+				.image{
+					width:19%;
+					&:after{background:none;}
+					border:1px solid #ddd;
+					position:relative;
+					.border-radius;
+					img{
+						.border-radius;
+					}
+					.title{
+						position:absolute;
+						width:100%;
+						left:0;
+						bottom:0;
+						text-align:center;
+						font-size:12px;
+						padding:3px 2px;
+						text-transform:uppercase;						color:@white-color;
+						background:rgba(0,0,0,.6);
+						.border-radius(0 0 2px 2px);
+					}
+				}
+			}
+		}
+	}
+	.section.section-author{margin:0 0 28px;}
+}
+@media only screen and (max-width: 1199px){
+	.author-page {
+		.section-author{
+			.shops{margin-right: -5.5%;}
+		}
+	}
+}
+@media only screen and (max-width: 979px){
+	.author-page {
+		.section-author{
+			.heading{
+				padding:11px 15px 17px;
+				h1{
+					font-size:36px;
+					line-height:40px;
+				}
+			}
+			.text-block{
+				font-size:13px;
+				line-height:18px;
+				padding:11px 15px 0;
+				p{margin:0 0 14px;}
+			}
+			.box-statistics{
+				.col{
+					font-size:26px;
+					line-height:26px;
+				}
+				.add{
+					span{
+						font-size:13px;
+						line-height:18px;
+					}
+				}
+			}
+			.bottom{
+				padding:14px 15px;
+			}
+		}
+		.tips-section{
+			.block{
+				padding:15px;
+				a{
+					.box{
+						padding:2px 15px;
+					}
+				}
+			}
+		}
+	}
+}
+@media only screen and (max-width: 479px){
+	.author-page {
+		.section-author{
+			.heading{
+				padding:10px;
+				.icon{margin-right:15px;}
+				h1{
+					font-size:26px;
+					line-height:30px;
+					span{display:block;}
+				}
+			}
+			.author-details {
+				img{margin:0;}
+				li{
+					margin: 0 4px 0 0;
+				}
+			}
+			.box-statistics{
+				.col{
+					font-size:20px;
+					line-height:24px;
+				}
+				.quantity{
+					display:block;
+				}
+			}
+			.text-block{padding:10px;}
+			.bottom{padding:8px 10px;}
+		}
+		.tips-section{
+			.block{
+				padding:5px;
+				a{
+					.box{padding:0;}
+				}
+			}
+		}
+	}
+}

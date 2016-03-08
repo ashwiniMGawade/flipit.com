@@ -1,0 +1,19 @@
+{
+  "Parameters": {
+    "GimiscaleCidrBlock": {
+      "Description": "Cidr Block for GimiScale access",
+      "Type": "String",
+      "Default": "37.17.210.74/32"
+    },
+    "WebflightCidrBlock1": {
+      "Description": "Cidr Block for Webflight access",
+      "Type": "String",
+      "Default": "95.97.72.173/32"
+    },
+    "WebflightCidrBlock2": {
+      "Description": "Cidr Block for Webflight access",
+      "Type": "String",
+      "Default": "121.241.123.42/32"
+    }
+  }
+}

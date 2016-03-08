@@ -1,0 +1,9 @@
+/var/log/varnish/*.log {
+        create 644
+        size 100M
+        rotate 5
+        compress
+        postrotate
+            service varnishncsa restart
+        endscript
+}

@@ -1,0 +1,148 @@
+{
+  "Parameters": {
+    "HostedZoneName": {
+      "Default": "examaple.com."
+    },
+    "KCHostedZoneName": {
+      "Default": "kortingscode.nl."
+    },
+    "SubdomainName": {
+      "Default": "acceptance"
+    },
+    "LiveStack": {
+      "Default": "false"
+    },
+    "Hibernate": {
+      "Default": "false"
+    },
+    "CronServerPresent": {
+      "Default": "false"
+    },
+    "WebServerPresent": {
+      "Default": "true"
+    },
+    "WebInstanceType": {
+      "Default": "m3.medium"
+    },
+    "WebCronInstanceType": {
+      "Default": "m1.small"
+    },
+    "WebMinInstances": {
+      "Default": 1
+    },
+    "WebScaleOutAdjustment": {
+      "Default": 1
+    },
+    "WebScaleInAdjustment": {
+      "Default": -1
+    },
+    "WebDesiredInstances": {
+      "Default": 1
+    },
+    "WebMaxInstances": {
+      "Default": 2
+    },
+    "WebCpuAlarmHighDurationMinutes": {
+      "Default": "2"
+    },
+    "WebBuildRelease": {
+      "Default": "rc2.0.5.2"
+    },
+    "WebBuildEnvironment": {
+      "Default": "acceptance"
+    },
+    "WebAMI": {
+      "Default": "ami-db72a2ac"
+    },
+    "VpcCidrBlockFirstHalf": {
+      "Default": "10.2"
+    },
+    "WebMinInstancesInService": {
+      "Default": "1"
+    },
+    "WebPauseTime": {
+      "Default": "PT3M30S"
+    },
+    "WebHealthCheckGracePeriod": {
+      "Default": 150
+    },
+    "RdsDbPresent": {
+      "Default": "true"
+    },
+    "RdsInstanceClass": {
+      "Default": "db.m3.medium"
+    },
+    "RdsAllocatedStorage": {
+      "Default": "100"
+    },
+    "RdsMasterUsername": {
+      "Default": "flipit"
+    },
+    "RdsMasterUserPassword": {
+      "Default": "M7odiTECqe8WpwpNcz"
+    },
+    "RdsDbInstanceIdentifier": {
+      "Default": "flipit-acceptance"
+    },
+    "RdsBackupRetentionPeriod": {
+      "Default": "7"
+    },
+    "RdsSnapshot": {
+      "Default": "rds:flipit-production-2014-07-29-05-12"
+    },
+    "RdsMultiAz": {
+      "Default": "false"
+    },
+    "S3LanguageBucket": {
+      "Default": "languagefiles.acceptance"
+    },
+    "S3ImagesBucket": {
+      "Default": "imgacceptance.flipit.com"
+    },
+    "KCImagesBucket": {
+      "Default": "imgacceptance.kortingscode.nl"
+    },
+    "S3BackupBucket": {
+      "Default": "flipitbackup"
+    },
+    "MemcachedPresent": {
+      "Default": "true"
+    },
+    "MemcachedType": {
+      "Default": "cache.t1.micro"
+    },
+    "VarnishAMI": {
+      "Default": "ami-57fa2920"
+    },
+    "VarnishInstanceType": {
+      "Default": "t2.micro"
+    },
+    "VarnishMinInstances": {
+      "Default": 1
+    },
+    "VarnishDesiredInstances": {
+      "Default": 1
+    },
+    "VarnishMaxInstances": {
+      "Default": 2
+    },
+    "VarnishServerPresent": {
+      "Default": "true"
+    },
+    "CreateDnsRecords": {
+      "Default": "true"
+    },
+    "WebElbSslCertificate": {
+      "Default": "arn:aws:iam::555859027902:server-certificate/Webflight"
+    },
+    "CdnPresent": {
+      "Default": "false"
+    },
+    "SNSSubscriptionEmail1": {
+      "Default": "nassos.antoniou@gimiscale.com"
+    },
+    "SNSSubscriptionEmail2": {
+      "Default": "kim@web-flight.nl"
+    }
+  }
+}

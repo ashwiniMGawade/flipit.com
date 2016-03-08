@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+
+require 'aws-sdk'
+
+@cf = nil
+def cf
+  @cf ||= AWS::CloudFormation.new
+end
+
+def get_stack(stack_name)
+  cf.stacks[stack_name]
+end
+
+def update_params(stack_name, new_parameters)
+  stack = get_stack stack_name
+
+  while (!['CREATE_COMPLETE', 'UPDATE_COMPLETE', 'UPDATE_ROLLBACK_COMPLETE'].include? stack.status)
+    puts "#{stack_name}: Waiting for previous operation to finish..."
+    sleep(10)
+  end
+
+  template = stack.template
+  parameters = stack.parameters
+
+  # puts 'Original Template:'
+  # puts template
+  # puts 'Original Parameters:'
+  # puts parameters
+  # puts 'New Parameters:'
+  # puts parameters
+
+  parameters.update(new_parameters)
+  stack.update template: template, parameters: parameters
+end
+
+def run
+  arguments = ARGV
+  stack_name = arguments.shift
+  new_parameters = Hash[arguments.map {|arg| arg.split '=', 2}]
+
+  update_params stack_name, new_parameters
+end
+
+run

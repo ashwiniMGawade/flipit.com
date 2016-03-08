@@ -1,0 +1,43 @@
+<%- require '/etc/render_templates_env.rb' -%>
+MAILTO=""
+# Varnish
+*/1 * * * * flipit master && /usr/bin/flock -n /tmp/refresh_varnish_cron.lock /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/SpecificTimeOffers.php
+1 0 * * * flipit master && /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/sitemap_refresh_varnish.php
+
+# Cronserver crons
+1 2,6,10,14,18,22 * * * flipit master && /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/createSiteMaps.php
+1 2,6,10,14,18,22 * * * flipit master && /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/generateOfferFeeds.php popularOffers
+1 2,6,10,14,18,22 * * * flipit master && /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/generateOfferFeeds.php newOffers
+1 2,6,10,14,18,22 * * * flipit master && /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/generateOffersFeedOnCategories.php specialPageOffers
+1 2,6,10,14,18,22 * * * flipit master && /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/generateOffersFeedOnCategories.php categoryOffers
+45 6 * * * flipit master && /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/updateDashboard.php > /tmp/updateDashboard.log 2>&1
+59 5 * * * flipit master && /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/runExportScript.php > /tmp/runExportScript.log 2>&1
+50 * * * * flipit master && /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/getDisqusComments.php > /tmp/getDisqusComments.log 2>&1
+40 * * * * flipit master && /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/UpdateShopAndOffersClickouts.php
+35 * * * * flipit master && /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/updateOffersViewCount.php
+*/10 * * * * flipit master && /usr/bin/flock -n /tmp/send_code_alert_cron.lock /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/sendCodeAlert.php >> /tmp/sendCodeAlert.log 2>&1
+40 * * * * flipit master && /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/specialPagesOffersCount.php > /tmp/specialPagesOffersCount.log 2>&1
+01 * * * * flipit master && /usr/bin/flock -n /tmp/send_newsletter_cron.lock /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/sendNewsletterScript.php >> /tmp/sendNewsletter.log 2>&1
+20 1 * * * flipit master && /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/DeleteExpiredOffersAndAddNewOffersToSpecialPage.php > /tmp/DeleteExpiredOffersAndAddNewOffersToSpecialPage.log 2>&1
+10 1 * * * flipit master && /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/GetTotalOffersAndTotalCouponsOfCategory.php > /tmp/GetTotalOffersAndTotalCouponsOfCategory.log 2>&1
+*/5 * * * * flipit master && /usr/bin/flock -n /tmp/visitorImportScript_cron.lock /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/visitorImportScript.php 2>&1
+50 1 1 * * flipit master && /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/UpdateShopAndOffersClickouts.php
+50 2 1 * * flipit master && /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/GenerateSimilarShopsViewed.php
+0 0 * * 1 flipit master && /usr/bin/seo-log-retrieval | gzip > /tmp/seo.log.gz && echo | mutt -s "SEO logs" willem@imbull.com -a /tmp/seo.log.gz
+
+# Webserver crons
+30 3,7,11,15,19,23  * * * flipit /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/generateAllShopsJsonForSearch.php
+30 2,6,10,14,18,22 * * * flipit /usr/bin/php5 -q -f /var/www/flipit.com/current/web/application/migration/generateJsonForJsTranlastion.php
+
+# Backups
+<% if ['staging','acceptance', 'test'].map { |x| not Vars.s3[:flipit][:images].include? x }.reduce{|r,e| r && e} %>
+40 02 * * * flipit master && s3cmd sync s3://img.flipit.com/ s3://img.flipit.com.backup/
+30 03 * * * flipit master && s3cmd sync s3://languagefiles/ s3://languagefiles.backup/
+00 03 * * * flipit master && s3cmd sync s3://img.flipit.com/ s3://imgacceptance.flipit.com/
+35 03 * * * flipit master && s3cmd sync s3://languagefiles/ s3://languagefiles.acceptance/
+<% end %>
+10 04 * * * flipit master && cd /var/www/flipit.com && bash redesign_backup.sh
+40 04 * * * flipit master && cd /var/www/flipit.com && bash redesign_import.sh
+#10 13 * * * flipit master && cd /var/www/flipit.com && bash dbbackup.sh
+20 2 * * * flipit master && cd /var/www/flipit.com && bash dbbackup.sh dev
+40 3 1 * * flipit master && cd /var/www/flipit.com && bash dbbackup.sh month

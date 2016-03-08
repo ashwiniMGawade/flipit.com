@@ -1,0 +1,170 @@
+<%- require '/etc/render_templates_env.rb' -%>
+[production]
+
+;;;;;;;;;;;;;;;;;
+;; Environment ;;
+;;;;;;;;;;;;;;;;;
+
+; Can be "production", "uat", "test" or "dev"
+ENV=production
+
+;;;;;;;;;;;;;;;;;
+;; DB Settings ;;
+;;;;;;;;;;;;;;;;;
+
+; DSN for kortingscode_IMBULL database
+doctrine.en.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/kortingscode_site"
+doctrine.pl.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_pl"
+doctrine.be.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_be"
+doctrine.ch.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_ch"
+doctrine.de.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_de"
+doctrine.es.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_es"
+doctrine.fr.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_fr"
+doctrine.in.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_in"
+doctrine.it.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_it"
+doctrine.pt.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_pt"
+doctrine.se.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_se"
+doctrine.br.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_br"
+doctrine.za.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_za"
+doctrine.us.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_us"
+doctrine.my.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_my"
+doctrine.ca.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_ca"
+doctrine.no.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_no"
+doctrine.jp.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_jp"
+doctrine.dk.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_dk"
+doctrine.uk.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_uk"
+doctrine.id.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_id"
+doctrine.at.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_at"
+doctrine.tr.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_tr"
+doctrine.fi.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_fi"
+doctrine.sg.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_sg"
+doctrine.au.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_au"
+doctrine.kr.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_kr"
+doctrine.ar.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_ar"
+doctrine.ru.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_ru"
+doctrine.hk.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_hk"
+doctrine.sk.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_sk"
+doctrine.nz.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_nz"
+doctrine.cl.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_cl"
+doctrine.ie.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_ie"
+doctrine.mx.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_mx"
+doctrine.cn.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_cn"
+doctrine.id.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_id"
+;doctrine.th.dsn = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/flipit_th"
+
+; imbull for kortingscode_user database
+doctrine.imbull = "mysql://<%= Vars.rds[:flipit][:username] %>:<%= Vars.rds[:flipit][:password] %>@<%= Vars.rds[:flipit][:endpoint] %>/kortingscode_user"
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; CDN variables        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+<% if ((not Vars.misc[:flipit][:subdomain]) || Vars.misc[:flipit][:subdomain].empty?) %>
+cdn['www.kortingscode.nl'] = <%= Vars.s3[:kc][:images] %>/public
+cdn['www.flipit.com'] = <%= Vars.s3[:flipit][:images] %>/public
+<% else %>
+cdn['<%= Vars.misc[:flipit][:subdomain] %>.kortingscode.nl'] = <%= Vars.s3[:kc][:images] %>/public
+cdn['<%= Vars.misc[:flipit][:subdomain] %>.flipit.com'] = <%= Vars.s3[:flipit][:images] %>/public
+<% end %>
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Memcache Settings    ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+resources.frontController.params.memcache = "<%= Vars.memcached[:flipit][:uri] %>"
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Mandrill Api keys    ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+resources.frontController.params.mandrillKey = 'doYpUzLqtEzq1eGSzK7sJw'
+resources.frontController.params.welcomeTemplate = 'welcome_test'
+resources.frontController.params.newsletterTemplate = 'newsletter'
+resources.frontController.params.passwordTemplate = 'password-email'
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; S3 API keys          ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+s3.bucket = "languagefiles"
+s3.key = "AKIAIEYP3BZV3WUZXWIQ"
+s3.secret = "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"
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Disqus API keys      ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+resources.frontController.params.disqusKey = "VhkrRabshw6kVf2U04xqUvEBoN3k26HVoLY3mHA2ecm4EACr8ix7R1DXiUQXbo7H"
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; GoogleCaptcha API keys ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+resources.frontController.params.captchaSiteKey = "6LdIBwUTAAAAAP38aJ0jLItzXxlE0QeeEjhWnbpC"
+resources.frontController.params.captchaSecretKey = "6LdIBwUTAAAAAPKNKs9aTPZfjxUzKIf2oZfUufsh"
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Password reset time  ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+resources.frontController.params.adminPasswordAge = "+2 months"
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Application Settings ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+phpSettings.display_startup_errors = 0
+phpSettings.display_errors = 0
+resources.frontController.params.displayExceptions = 0
+
+;;;;;;;;;;;;;;;;;;;
+;; Base Settings ;;
+;;;;;;;;;;;;;;;;;;;
+
+phpSettings.error_reporting = E_ALL | E_STRICT
+session.auto_start = 1
+includePaths.library = APPLICATION_PATH "/../library"
+bootstrap.path = APPLICATION_PATH "/Bootstrap.php"
+bootstrap.class = "Bootstrap"
+appnamespace = "Application"
+resources.frontController.controllerDirectory = APPLICATION_PATH "/controllers"
+resources.view[] =
+resources.layout.layout = "layout"
+resources.layout.layoutPath = APPLICATION_PATH "/layouts/scripts/"
+resources.frontController.plugins.layout = "Layout_Controller_Plugin_Layout"
+default.resources.layout.layout = "layout"
+default.resources.layout.layoutPath = APPLICATION_PATH "/layouts/scripts/"
+resources.frontController.moduleDirectory = APPLICATION_PATH "/modules"
+admin.resources.layout.layout = "layout"
+admin.resources.layout.layoutPath = APPLICATION_PATH "/modules/admin/layouts/scripts/"
+pluginPaths.Bisna\Application\Resource\ = "Bisna/Application/Resource"
+resources.modules[] =
+autoloaderNamespaces[] = "FrontController_"
+autoloaderNamespaces[] = "Doctrine"
+autoloaderNamespaces[] = "Auth"
+autoloaderNamespaces[] = "BackEnd_Helper"
+autoloaderNamespaces[] = "FrontEnd_Helper"
+autoloaderNamespaces[] = "DataTable"
+autoloaderNamespaces[] = "PHPExcel"
+autoloaderNamespaces[] = "PHPSitemap_sitemap"
+autoloaderNamespaces[] = "Mandril"
+autoloaderNamespaces[] = "forms"
+autoloaderNamespaces[] = "BootstrapConstants"
+autoloaderNamespaces[] = "Webf"
+autoloaderNamespaces[] = "KC"
+autoloaderNamespaces[] = "Bisna"
+autoloaderNamespaces[] = "Symfony"
+autoloaderNamespaces[] = "Doctrine"
+autoloaderNamespaces[] = "NeuroSYS"
+autoloaderNamespaces[] = "Transl8_"
+
+[staging : production]
+
+[testing : production]
+phpSettings.display_startup_errors = 1
+phpSettings.display_errors = 1
+CACHE_DIRECTORY_PATH = "/Users/kimpellikaan/Sites/flipit.com/flipit_application/public/tmp"
+
+[development : production]
+phpSettings.display_startup_errors = 1
+phpSettings.display_errors = 1
+resources.frontController.params.displayExceptions = 1

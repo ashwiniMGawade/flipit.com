@@ -1,0 +1,60 @@
+#!/usr/bin/ruby
+
+require 'aws-sdk-core'
+
+module CloudWatchLogs
+  def self.get_group_log(group_name, options = {})
+    cloudwatchlogs = Aws::CloudWatchLogs::Client.new(region: 'eu-west-1')
+    log_streams = []
+    res = nil
+    base_request = { log_group_name: group_name }
+    begin
+      request = res ? base_request.merge(next_token: res.next_token) : base_request
+      res = cloudwatchlogs.describe_log_streams(request)
+      log_streams += res.log_streams.map(&:log_stream_name)
+    end while res.next_token
+
+    events = []
+    log_streams.each do |log_stream|
+      res = nil
+      base_request = { log_group_name: group_name, log_stream_name: log_stream }
+      base_request.merge!(start_time: options[:start_time]) if options[:start_time]
+      base_request.merge!(end_time: options[:end_time]) if options[:end_time]
+      begin
+        if res
+          events += res.events.map do |x|
+            Struct.new(:log_stream,
+            :timestamp,
+            :message).new(log_stream,
+            i_to_time(x.timestamp),
+            x.message)
+          end
+        end
+        request = res ? base_request.merge(next_token: res.next_forward_token) : base_request
+        res = cloudwatchlogs.get_log_events(request)
+      end while !res.events.empty?
+    end
+    events.sort { |x, y| x.timestamp <=> y.timestamp }
+  end
+
+  def self.time_to_i(time)
+    time = Time.parse(time) if time.class == String
+    time.to_i * 1000 + (time.usec / 1000.0).round
+  end
+
+  def self.i_to_time(i)
+    Time.at(i / 1000, (i % 1000) * 1000)
+  end
+end
+
+now_i = Time.now.to_i * 1000
+seven_days_ago_i = (now_i - 7 * 24 * 3600 * 1000)
+
+logs = CloudWatchLogs.get_group_log('varnish-access-log',
+  start_time: seven_days_ago_i,
+  end_time: now_i
+  )
+
+logs.each do |log|
+  puts log.to_a[2]
+end

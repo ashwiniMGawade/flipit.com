@@ -1,0 +1,251 @@
+{
+  "Parameters": {
+    "RdsInstanceClass": {
+      "Description": "MySQL Instance Type",
+      "Type": "String",
+      "Default": "db.t1.micro",
+      "AllowedValues": [
+        "db.t1.micro",
+        "db.m1.small",
+        "db.m1.medium",
+        "db.m1.large",
+        "db.m1.xlarge",
+        "db.m2.xlarge",
+        "db.m2.2xlarge",
+        "db.m2.4xlarge",
+        "db.m3.medium",
+        "db.m3.large",
+        "db.m3.xlarge",
+        "db.m3.2xlarge"
+      ]
+    },
+    "RdsDbPresent": {
+      "Description": "If false, then no database is created",
+      "Default": "true",
+      "Type": "String"
+    },
+    "RdsAllocatedStorage": {
+      "Description": "MySQL Allocated Storage (GB)",
+      "Type": "Number",
+      "Default": "5",
+      "MinValue": "5",
+      "MaxValue": "3072"
+    },
+    "RdsMasterUsername": {
+      "Description": "MySQL Username",
+      "Type": "String",
+      "Default": "flipit"
+    },
+    "RdsMasterUserPassword": {
+      "Description": "MySQL Password",
+      "Type": "String",
+      "Default": "neither_secure_nor_secret"
+    },
+    "RdsDbInstanceIdentifier": {
+      "Description": "MySQL Database Instance ID",
+      "Type": "String",
+      "Default": "production"
+    },
+    "RdsBackupRetentionPeriod": {
+      "Description": "Retention period for backups",
+      "Type": "Number",
+      "Default": "7",
+      "MinValue": "1",
+      "MaxValue": "35"
+    },
+    "RdsLicenseModel": {
+      "Description": "License Model for MySQL (general-public-license)",
+      "Type": "String",
+      "Default": "general-public-license",
+      "AllowedValues": [
+        "general-public-license",
+        ""
+      ]
+    },
+    "RdsSnapshot": {
+      "Description": "If specified, restore the dabatase contents from this snapshot",
+      "Type": "String",
+      "Default": ""
+    },
+    "RdsMultiAz": {
+      "AllowedValues": [
+        "",
+        "true",
+        "false"
+      ],
+      "Default": "false",
+      "Description": "MySQL MultiAZ",
+      "Type": "String"
+    }
+  },
+  "Conditions": {
+    "EnableRdsDb": {
+      "Fn::And": [
+        {
+          "Fn::Not": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "RdsDbPresent"
+                },
+                "false"
+              ]
+            }
+          ]
+        },
+        {
+          "Fn::Equals": [
+            "false",
+            {
+              "Ref": "Hibernate"
+            }
+          ]
+        }
+      ]
+    },
+    "RestoreRdsSnapshot": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "RdsSnapshot"
+            },
+            ""
+          ]
+        }
+      ]
+    },
+    "MultiAZNotSpecified": {
+      "Fn::Equals": [
+        {
+          "Ref": "RdsMultiAz"
+        },
+        ""
+      ]
+    },
+    "RdsLicenseModelNotSpecified": {
+      "Fn::Equals": [
+        {
+          "Ref": "RdsLicenseModel"
+        },
+        ""
+      ]
+    }
+  },
+  "Resources": {
+    "RdsSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "RDS",
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "3306",
+            "ToPort": "3306",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    },
+    "DbParameterGroup": {
+      "Type": "AWS::RDS::DBParameterGroup",
+      "Properties": {
+        "Description": "RDS Parameter Group",
+        "Family": "mysql5.6",
+        "Parameters": {
+          "character_set_server": "utf8",
+          "collation_server": "utf8_general_ci",
+          "tmp_table_size": "67108864",
+          "max_heap_table_size": "67108864",
+          "query_cache_type": "1",
+          "query_cache_size": "134217728",
+          "query_cache_limit": "4194304",
+          "table_open_cache": "600",
+          "join_buffer_size": "67108864",
+          "thread_cache_size": "{DBInstanceClassMemory/12582880}",
+          "sort_buffer_size": "2097152",
+          "innodb_buffer_pool_size": "{DBInstanceClassMemory*3/4}",
+          "innodb_flush_log_at_trx_commit": "0",
+          "innodb_max_dirty_pages_pct": "90",
+          "innodb_support_xa": "0",
+          "max_allowed_packet": "33554432"
+        }
+      }
+    },
+    "RdsInstance": {
+      "Type": "AWS::RDS::DBInstance",
+      "Condition": "EnableRdsDb",
+      "Properties": {
+        "VPCSecurityGroups": [
+          {
+            "Ref": "RdsSecurityGroup"
+          }
+        ],
+        "AllocatedStorage": {
+          "Ref": "RdsAllocatedStorage"
+        },
+        "DBInstanceClass": {
+          "Ref": "RdsInstanceClass"
+        },
+        "Engine": "MySQL",
+        "AutoMinorVersionUpgrade": "false",
+        "MasterUsername": {
+          "Ref": "RdsMasterUsername"
+        },
+        "MasterUserPassword": {
+          "Ref": "RdsMasterUserPassword"
+        },
+        "MultiAZ": {
+          "Fn::If": [
+            "MultiAZNotSpecified",
+            {
+              "Ref": "AWS::NoValue"
+            },
+            {
+              "Ref": "RdsMultiAz"
+            }
+          ]
+        },
+        "DBSubnetGroupName": {
+          "Ref": "RdsSubnetGroup"
+        },
+        "BackupRetentionPeriod": {
+          "Ref": "RdsBackupRetentionPeriod"
+        },
+        "StorageType": "gp2",
+        "LicenseModel": {
+          "Fn::If": [
+            "RdsLicenseModelNotSpecified",
+            {
+              "Ref": "AWS::NoValue"
+            },
+            {
+              "Ref": "RdsLicenseModel"
+            }
+          ]
+        },
+        "DBInstanceIdentifier": {
+          "Ref": "RdsDbInstanceIdentifier"
+        },
+        "DBSnapshotIdentifier": {
+          "Fn::If": [
+            "RestoreRdsSnapshot",
+            {
+              "Ref": "RdsSnapshot"
+            },
+            {
+              "Ref": "AWS::NoValue"
+            }
+          ]
+        },
+        "DBParameterGroupName": {
+          "Ref": "DbParameterGroup"
+        }
+      },
+      "DeletionPolicy": "Snapshot"
+    }
+  }
+}

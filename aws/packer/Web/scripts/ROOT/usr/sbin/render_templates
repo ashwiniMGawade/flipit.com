@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e -u
+
+for TPL in `cat /etc/render_templates.d/*`
+do
+  [[ -f ${TPL} ]] || continue
+
+  echo "Rendering: ${TPL} --> ${TPL%.erb}" >&2
+
+  TMPFL=$(mktemp tpl_XXXXXX)
+
+  touch --reference ${TPL} ${TMPFL}
+  chown --reference ${TPL} ${TMPFL}
+  chmod --reference ${TPL} ${TMPFL}
+
+  erb -T - ${TPL} >${TMPFL}
+  mv ${TMPFL} ${TPL%.erb}
+done

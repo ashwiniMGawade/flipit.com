@@ -1,0 +1,124 @@
+@import "custom-variables.less";
+@import "custom-mixins.less";
+.contact-page {
+	.contact-section{
+		color:@grey-color;
+		font-size:14px;
+		line-height:22px;
+		.box{
+			.box-holder{margin:0 0 -20px;}
+			border-top:1px solid @page-header-border-color;			padding:39px 29px;
+			overflow:hidden;
+			h2{
+				font-size:16px;
+				line-height:22px;
+				margin:0 0 10px;
+			}
+			dl{
+				color:@text-color;
+				margin:0 0 22px;
+				overflow:hidden;
+				dt{
+					float:left;
+					margin:0 5px 0 0;
+					color:@grey-color;
+					font-weight:normal;
+				}
+				dd{
+					display:block;					margin:0;
+				}
+				a{color:@text-color;}
+			}
+			address{
+				line-height:22px;
+				margin:0 0 23px;
+				.name{color:@blue-color;}
+			}
+		}
+	}
+	.contact-form{
+		padding:41px 32px 37px 30px;
+		overflow:hidden;
+		label{
+			font-weight:normal;
+			display:inline-block;
+			vertical-align:top;
+			margin:0 0 6px;
+		}
+		.form-group{
+			margin:0 0 22px;
+			input,
+			textarea{
+				display:block;
+				width:100%;
+				background:#fcfcfc;
+				border-color:#d8d8d8;
+				padding:10px 10px 11px;
+			}
+			input{
+				height:39px;
+			}
+			textarea{
+				height:240px;
+				min-height:70px;
+				max-width:100%;
+				width:100% !important;
+			}
+		}
+		
+		input.error{border-color:#f00;}
+		label.error{color:#f00;}
+		input.success{border-color:#2b8743;}
+		label.success{color:#2b8743;}
+		.btn.blue{
+			font-size:14px;
+			height: 42px;
+			min-width: 101px;
+			padding: 14px 12px;
+		}
+	}
+	.form-inline{
+		.after;
+		margin:0 -4% 0 0;
+		padding:0 0 16px;
+		.form-group{
+			width:46.4%;
+			margin:0 3% 0 0;
+			input{
+				display:block;
+				width:100%;
+			}
+		}
+	}
+}
+@media only screen and (max-width: 1199px){
+	.contact-page {
+		.contact-section{
+			.box{padding:20px 15px;}
+		}
+		.contact-form{
+			padding:20px 15px;
+		}
+	}
+}
+@media only screen and (max-width: 767px){
+	.contact-page {
+		.form-inline{
+			margin:0;
+			.form-group{
+				margin:0;
+				width:100%;
+			}
+		}
+	}
+}
+@media only screen and (max-width: 479px){
+	.contact-page {
+		.contact-section{
+			.box{padding:15px 10px;}
+		}
+		.contact-form{
+			padding:15px 10px;
+		}
+	}
+}

@@ -1,0 +1,21 @@
+---
+:schedule:
+  :auto_scaling_groups:
+    WebAutoscalingGroup:
+      - :name: 'EveningShutdown'
+        :desired_capacity: 0
+        :min_size: 0
+        :recurrence: "0 21 * * 1-5"
+      - :name: 'MorningWakeup'
+        :desired_capacity: 1
+        :min_size: 1
+        :recurrence: "31 6 * * 1-5"
+    VarnishAutoscalingGroup:
+      - :name: 'VarnishEveningShutdown'
+        :desired_capacity: 0
+        :min_size: 0
+        :recurrence: "0 22 * * 1-5"
+      - :name: 'VarnishMorningWakeup'
+        :desired_capacity: 1
+        :min_size: 1
+        :recurrence: "31 6 * * 1-5"

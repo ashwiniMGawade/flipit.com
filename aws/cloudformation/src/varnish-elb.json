@@ -1,0 +1,642 @@
+{
+  "Parameters": {
+    "HostedZoneName": {
+      "Description": "Route53 Zone to Register DNS",
+      "Type": "String",
+      "Default": ""
+    },
+    "KCHostedZoneName": {
+      "Description": "Route53 Zone to Register DNS",
+      "Type": "String",
+      "Default": ""
+    },
+    "SubdomainName": {
+      "Description": "Subdomain name for deployment",
+      "Type": "String",
+      "Default": ""
+    },
+    "LiveStack": {
+      "Description": "Designates whether the stack should go live to the public",
+      "Type": "String",
+      "Default": "false",
+      "AllowedValues": [
+        "true",
+        "false"
+      ]
+    },
+    "CreateDnsRecords": {
+      "Description": "Designates whether Route53 records should be created",
+      "Type": "String",
+      "Default": "false",
+      "AllowedValues": [
+        "true",
+        "false"
+      ]
+    }
+  },
+  "Conditions": {
+    "RegisterWithRoute53": {
+      "Fn::And": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "CreateDnsRecords"
+            },
+            "true"
+          ]
+        },
+        {
+          "Fn::Not": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "HostedZoneName"
+                },
+                ""
+              ]
+            }
+          ]
+        },
+        {
+          "Fn::Equals": [
+            "false",
+            {
+              "Ref": "Hibernate"
+            }
+          ]
+        }
+      ]
+    },
+    "StackIsLive": {
+      "Fn::Equals": [
+        "true",
+        {
+          "Ref": "LiveStack"
+        }
+      ]
+    },
+    "EnableS3BucketRecordSet": {
+      "Fn::And": [
+        {
+          "Fn::Equals": [
+            "false",
+            {
+              "Ref": "CdnPresent"
+            }
+          ]
+        },
+        {
+          "Fn::Equals": [
+            "false",
+            {
+              "Ref": "Hibernate"
+            }
+          ]
+        },
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "CreateDnsRecords"
+            },
+            "true"
+          ]
+        },
+        {
+          "Fn::Not": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "HostedZoneName"
+                },
+                ""
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "WhiteListImbull": {
+      "Fn::Equals": [
+        {
+          "Ref": "WebBuildEnvironment"
+        },
+        "acceptance"
+      ]
+    }
+  },
+  "Resources": {
+    "VarnishElbSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Varnish ELB Security Group",
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "SecurityGroupIngress": {
+          "Fn::If": [
+            "StackIsLive",
+            [
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "80",
+                "ToPort": "80",
+                "CidrIp": "0.0.0.0/0"
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "443",
+                "ToPort": "443",
+                "CidrIp": {
+                  "Ref": "GimiscaleCidrBlock"
+                }
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "443",
+                "ToPort": "443",
+                "CidrIp": {
+                  "Ref": "WebflightCidrBlock1"
+                }
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "443",
+                "ToPort": "443",
+                "CidrIp": {
+                  "Ref": "WebflightCidrBlock2"
+                }
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "22",
+                "ToPort": "22",
+                "CidrIp": {
+                  "Ref": "GimiscaleCidrBlock"
+                }
+              }
+            ],
+            [
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "80",
+                "ToPort": "80",
+                "CidrIp": {
+                  "Ref": "GimiscaleCidrBlock"
+                }
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "80",
+                "ToPort": "80",
+                "CidrIp": {
+                  "Ref": "WebflightCidrBlock1"
+                }
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "80",
+                "ToPort": "80",
+                "CidrIp": {
+                  "Ref": "WebflightCidrBlock2"
+                }
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "443",
+                "ToPort": "443",
+                "CidrIp": {
+                  "Ref": "GimiscaleCidrBlock"
+                }
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "443",
+                "ToPort": "443",
+                "CidrIp": {
+                  "Ref": "WebflightCidrBlock1"
+                }
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "443",
+                "ToPort": "443",
+                "CidrIp": {
+                  "Ref": "WebflightCidrBlock2"
+                }
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": "22",
+                "ToPort": "22",
+                "CidrIp": {
+                  "Ref": "GimiscaleCidrBlock"
+                }
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "VarnishElb": {
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Condition": "EnableVarnishServer",
+      "Properties": {
+        "CrossZone": "true",
+        "Subnets": [
+          {
+            "Ref": "VarnishElbSubnetA"
+          },
+          {
+            "Ref": "VarnishElbSubnetB"
+          }
+        ],
+        "HealthCheck": {
+          "HealthyThreshold": "2",
+          "Interval": "20",
+          "Target": "HTTP:80/varnish_health",
+          "Timeout": "10",
+          "UnhealthyThreshold": "2"
+        },
+        "Listeners": [
+          {
+            "InstancePort": "80",
+            "InstanceProtocol": "HTTP",
+            "LoadBalancerPort": "80",
+            "Protocol": "HTTP"
+          }
+        ],
+        "SecurityGroups": [
+          {
+            "Ref": "VarnishElbSecurityGroup"
+          },
+          {
+            "Fn::If": [
+              "WhiteListImbull",
+              {
+                "Ref": "ImbullWebSecurityGroup1"
+              },
+              {
+                "Ref": "AWS::NoValue"
+              }
+            ]
+          },
+          {
+            "Fn::If": [
+              "WhiteListImbull",
+              {
+                "Ref": "ImbullWebSecurityGroup2"
+              },
+              {
+                "Ref": "AWS::NoValue"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "Route53NakedRecordSet": {
+      "Type": "AWS::Route53::RecordSetGroup",
+      "Condition": "RegisterWithRoute53",
+      "Properties": {
+        "HostedZoneName": {
+          "Ref": "HostedZoneName"
+        },
+        "Comment": "VarnishServer LoadBalancer",
+        "RecordSets": [
+          {
+            "Name": {
+              "Fn::Join": [
+                ".",
+                [
+                  {
+                    "Ref": "SubdomainName"
+                  },
+                  {
+                    "Ref": "HostedZoneName"
+                  }
+                ]
+              ]
+            },
+            "Type": "A",
+            "AliasTarget": {
+              "HostedZoneId": {
+                "Fn::If": [
+                  "EnableVarnishServer",
+                  {
+                    "Fn::GetAtt": [
+                      "VarnishElb",
+                      "CanonicalHostedZoneNameID"
+                    ]
+                  },
+                  {
+                    "Fn::GetAtt": [
+                      "WebElb",
+                      "CanonicalHostedZoneNameID"
+                    ]
+                  }
+                ]
+              },
+              "DNSName": {
+                "Fn::If": [
+                  "EnableVarnishServer",
+                  {
+                    "Fn::GetAtt": [
+                      "VarnishElb",
+                      "CanonicalHostedZoneName"
+                    ]
+                  },
+                  {
+                    "Fn::GetAtt": [
+                      "WebElb",
+                      "CanonicalHostedZoneName"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "Route53KcNakedRecordSet": {
+      "Type": "AWS::Route53::RecordSetGroup",
+      "Condition": "RegisterWithRoute53",
+      "Properties": {
+        "HostedZoneName": {
+          "Ref": "KCHostedZoneName"
+        },
+        "Comment": "VarnishServer LoadBalancer",
+        "RecordSets": [
+          {
+            "Name": {
+              "Fn::Join": [
+                ".",
+                [
+                  {
+                    "Ref": "SubdomainName"
+                  },
+                  {
+                    "Ref": "KCHostedZoneName"
+                  }
+                ]
+              ]
+            },
+            "Type": "A",
+            "AliasTarget": {
+              "HostedZoneId": {
+                "Fn::If": [
+                  "EnableVarnishServer",
+                  {
+                    "Fn::GetAtt": [
+                      "VarnishElb",
+                      "CanonicalHostedZoneNameID"
+                    ]
+                  },
+                  {
+                    "Fn::GetAtt": [
+                      "WebElb",
+                      "CanonicalHostedZoneNameID"
+                    ]
+                  }
+                ]
+              },
+              "DNSName": {
+                "Fn::If": [
+                  "EnableVarnishServer",
+                  {
+                    "Fn::GetAtt": [
+                      "VarnishElb",
+                      "CanonicalHostedZoneName"
+                    ]
+                  },
+                  {
+                    "Fn::GetAtt": [
+                      "WebElb",
+                      "CanonicalHostedZoneName"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "Route53NoCacheRecordSet": {
+      "Type": "AWS::Route53::RecordSetGroup",
+      "Condition": "RegisterWithRoute53",
+      "Properties": {
+        "HostedZoneName": {
+          "Ref": "HostedZoneName"
+        },
+        "Comment": "VarnishServer LoadBalancer",
+        "RecordSets": [
+          {
+            "Name": {
+              "Fn::Join": [
+                ".",
+                [
+                  "nocache",
+                  {
+                    "Ref": "SubdomainName"
+                  },
+                  {
+                    "Ref": "HostedZoneName"
+                  }
+                ]
+              ]
+            },
+            "Type": "A",
+            "AliasTarget": {
+              "HostedZoneId": {
+                "Fn::GetAtt": [
+                  "WebElb",
+                  "CanonicalHostedZoneNameID"
+                ]
+              },
+              "DNSName": {
+                "Fn::GetAtt": [
+                  "WebElb",
+                  "CanonicalHostedZoneName"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "Route53WwwRecordSet": {
+      "Type": "AWS::Route53::RecordSetGroup",
+      "Condition": "RegisterWithRoute53",
+      "Properties": {
+        "HostedZoneName": {
+          "Ref": "HostedZoneName"
+        },
+        "Comment": "VarnishServer LoadBalancer",
+        "RecordSets": [
+          {
+            "Name": {
+              "Fn::Join": [
+                ".",
+                [
+                  "www",
+                  {
+                    "Ref": "SubdomainName"
+                  },
+                  {
+                    "Ref": "HostedZoneName"
+                  }
+                ]
+              ]
+            },
+            "Type": "A",
+            "AliasTarget": {
+              "HostedZoneId": {
+                "Fn::If": [
+                  "EnableVarnishServer",
+                  {
+                    "Fn::GetAtt": [
+                      "VarnishElb",
+                      "CanonicalHostedZoneNameID"
+                    ]
+                  },
+                  {
+                    "Fn::GetAtt": [
+                      "WebElb",
+                      "CanonicalHostedZoneNameID"
+                    ]
+                  }
+                ]
+              },
+              "DNSName": {
+                "Fn::If": [
+                  "EnableVarnishServer",
+                  {
+                    "Fn::GetAtt": [
+                      "VarnishElb",
+                      "CanonicalHostedZoneName"
+                    ]
+                  },
+                  {
+                    "Fn::GetAtt": [
+                      "WebElb",
+                      "CanonicalHostedZoneName"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "Route53ImgKortingscodeRecordSet": {
+      "Type": "AWS::Route53::RecordSetGroup",
+      "Condition": "EnableS3BucketRecordSet",
+      "Properties": {
+        "HostedZoneName": {
+          "Ref": "KCHostedZoneName"
+        },
+        "Comment": "VarnishServer LoadBalancer",
+        "RecordSets": [
+          {
+            "Name": {
+              "Ref": "KCImagesBucket"
+            },
+            "Type": "A",
+            "AliasTarget": {
+              "HostedZoneId": {
+                "Fn::If": [
+                  "EnableVarnishServer",
+                  {
+                    "Fn::GetAtt": [
+                      "VarnishElb",
+                      "CanonicalHostedZoneNameID"
+                    ]
+                  },
+                  {
+                    "Fn::GetAtt": [
+                      "WebElb",
+                      "CanonicalHostedZoneNameID"
+                    ]
+                  }
+                ]
+              },
+              "DNSName": {
+                "Fn::If": [
+                  "EnableVarnishServer",
+                  {
+                    "Fn::GetAtt": [
+                      "VarnishElb",
+                      "CanonicalHostedZoneName"
+                    ]
+                  },
+                  {
+                    "Fn::GetAtt": [
+                      "WebElb",
+                      "CanonicalHostedZoneName"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "Route53ImgFlipitRecordSet": {
+      "Type": "AWS::Route53::RecordSetGroup",
+      "Condition": "EnableS3BucketRecordSet",
+      "Properties": {
+        "HostedZoneName": {
+          "Ref": "HostedZoneName"
+        },
+        "Comment": "VarnishServer LoadBalancer",
+        "RecordSets": [
+          {
+            "Name": {
+              "Ref": "S3ImagesBucket"
+            },
+            "Type": "A",
+            "AliasTarget": {
+              "HostedZoneId": {
+                "Fn::If": [
+                  "EnableVarnishServer",
+                  {
+                    "Fn::GetAtt": [
+                      "VarnishElb",
+                      "CanonicalHostedZoneNameID"
+                    ]
+                  },
+                  {
+                    "Fn::GetAtt": [
+                      "WebElb",
+                      "CanonicalHostedZoneNameID"
+                    ]
+                  }
+                ]
+              },
+              "DNSName": {
+                "Fn::If": [
+                  "EnableVarnishServer",
+                  {
+                    "Fn::GetAtt": [
+                      "VarnishElb",
+                      "CanonicalHostedZoneName"
+                    ]
+                  },
+                  {
+                    "Fn::GetAtt": [
+                      "WebElb",
+                      "CanonicalHostedZoneName"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

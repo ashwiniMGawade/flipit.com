@@ -1,0 +1,6 @@
+/var/www/flipit.com/local/application.ini.erb
+/root/firstboot_scripts/fstab.erb
+/etc/passwd-s3fs.erb
+/etc/php5/apache2/php.ini.erb
+/etc/cron.d/flipit.erb
+/etc/phpmyadmin/config-db.php.erb

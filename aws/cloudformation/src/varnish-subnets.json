@@ -1,0 +1,215 @@
+{
+  "Resources": {
+    "VarnishSubnetA": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            {
+              "Fn::GetAZs": ""
+            }
+          ]
+        },
+        "CidrBlock": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "VpcCidrBlockFirstHalf"
+              },
+              ".5.0/24"
+            ]
+          ]
+        }
+      }
+    },
+    "VarnishSubnetB": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "AvailabilityZone": {
+          "Fn::Select": [
+            1,
+            {
+              "Fn::GetAZs": ""
+            }
+          ]
+        },
+        "CidrBlock": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "VpcCidrBlockFirstHalf"
+              },
+              ".6.0/24"
+            ]
+          ]
+        }
+      }
+    },
+    "VarnishSubnetARouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "DefaultRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "VarnishSubnetA"
+        }
+      }
+    },
+    "VarnishSubnetBRouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "DefaultRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "VarnishSubnetB"
+        }
+      }
+    },
+    "VarnishNetworkAcl": {
+      "Type": "AWS::EC2::NetworkAcl",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "InboundVarnishHttpNetworkAclEntry": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "VarnishNetworkAcl"
+        },
+        "RuleNumber": "100",
+        "Protocol": "6",
+        "RuleAction": "allow",
+        "Egress": "false",
+        "CidrBlock": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "VpcCidrBlockFirstHalf"
+              },
+              ".0.0/16"
+            ]
+          ]
+        },
+        "PortRange": {
+          "From": "80",
+          "To": "80"
+        }
+      }
+    },
+    "InboundVarnishSshNetworkAclEntry": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "VarnishNetworkAcl"
+        },
+        "RuleNumber": "101",
+        "Protocol": "6",
+        "RuleAction": "allow",
+        "Egress": "false",
+        "CidrBlock": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "VpcCidrBlockFirstHalf"
+              },
+              ".0.0/16"
+            ]
+          ]
+        },
+        "PortRange": {
+          "From": "22",
+          "To": "22"
+        }
+      }
+    },
+    "InboundVarnishReturnNetworkAclEntry": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "VarnishNetworkAcl"
+        },
+        "RuleNumber": "902",
+        "Protocol": "6",
+        "RuleAction": "allow",
+        "Egress": "false",
+        "CidrBlock": "0.0.0.0/0",
+        "PortRange": {
+          "From": "0",
+          "To": "65535"
+        }
+      }
+    },
+    "OutBoundVarnishNetworkAclEntry": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "VarnishNetworkAcl"
+        },
+        "RuleNumber": "100",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "Egress": "true",
+        "CidrBlock": "0.0.0.0/0",
+        "PortRange": {
+          "From": "0",
+          "To": "65535"
+        }
+      }
+    },
+    "OutBoundAllVarnishNetworkAclEntry": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "VarnishNetworkAcl"
+        },
+        "RuleNumber": "102",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "Egress": "true",
+        "CidrBlock": "0.0.0.0/0",
+        "PortRange": {
+          "From": "0",
+          "To": "65535"
+        }
+      }
+    },
+    "VarnishSubnetANetworkAclAssociation": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "VarnishSubnetA"
+        },
+        "NetworkAclId": {
+          "Ref": "VarnishNetworkAcl"
+        }
+      }
+    },
+    "VarnishSubnetBNetworkAclAssociation": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "VarnishSubnetB"
+        },
+        "NetworkAclId": {
+          "Ref": "VarnishNetworkAcl"
+        }
+      }
+    }
+  }
+}

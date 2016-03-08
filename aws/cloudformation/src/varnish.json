@@ -1,0 +1,387 @@
+{
+  "Parameters": {
+    "VarnishServerPresent": {
+      "Description": "(CHANGEME) If false, caching layer will not be created",
+      "Type": "String",
+      "Default": "true"
+    },
+    "VarnishAMI": {
+      "Description": "(CHANGEME) AMI for Varnish Instances",
+      "Type": "String",
+      "Default": "ami-57fa2920"
+    },
+    "VarnishInstanceType": {
+      "Description": "(CHANGEME) Instance Type for Cache Instances",
+      "Type": "String",
+      "Default": "m1.small"
+    },
+    "VarnishKeyName": {
+      "Description": "(SSH) KeyName for Cache",
+      "Type": "String",
+      "Default": "varnish"
+    },
+    "VarnishLoadBalancerName": {
+      "Description": "The name of the Varnish load balancer",
+      "Type": "String",
+      "Default": "flipit"
+    },
+    "VarnishMinInstances": {
+      "Description": "(CHANGEME) Minimum amount of Instances",
+      "Type": "Number",
+      "Default": 2
+    },
+    "VarnishDesiredInstances": {
+      "Description": "(CHANGEME) Desired amount of Instances",
+      "Type": "Number",
+      "Default": 2
+    },
+    "VarnishMaxInstances": {
+      "Description": "(CHANGEME) Maximum amount of Instances",
+      "Type": "Number",
+      "Default": 2
+    }
+  },
+  "Conditions": {
+    "EnableVarnishServer": {
+      "Fn::And": [
+        {
+          "Fn::Equals": [
+            "true",
+            {
+              "Ref": "VarnishServerPresent"
+            }
+          ]
+        },
+        {
+          "Fn::Equals": [
+            "false",
+            {
+              "Ref": "Hibernate"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "Resources": {
+    "VarnishSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "DependsOn": "VarnishElbSecurityGroup",
+      "Properties": {
+        "GroupDescription": "Varnish Server Security Group",
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "80",
+            "ToPort": "80",
+            "SourceSecurityGroupId": {
+              "Ref": "VarnishElbSecurityGroup"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "443",
+            "ToPort": "443",
+            "SourceSecurityGroupId": {
+              "Ref": "VarnishElbSecurityGroup"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "80",
+            "ToPort": "80",
+            "CidrIp": {
+              "Ref": "WebflightCidrBlock1"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "80",
+            "ToPort": "80",
+            "CidrIp": {
+              "Ref": "WebflightCidrBlock2"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "443",
+            "ToPort": "443",
+            "CidrIp": {
+              "Ref": "WebflightCidrBlock1"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "443",
+            "ToPort": "443",
+            "CidrIp": {
+              "Ref": "WebflightCidrBlock2"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "80",
+            "ToPort": "80",
+            "CidrIp": {
+              "Ref": "GimiscaleCidrBlock"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "443",
+            "ToPort": "443",
+            "CidrIp": {
+              "Ref": "GimiscaleCidrBlock"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": {
+              "Ref": "GimiscaleCidrBlock"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": {
+              "Ref": "WebflightCidrBlock1"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": {
+              "Ref": "WebflightCidrBlock2"
+            }
+          }
+        ]
+      }
+    },
+    "VarnishLaunchConfiguration": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Condition": "EnableVarnishServer",
+      "Properties": {
+        "AssociatePublicIpAddress": true,
+        "InstanceType": {
+          "Ref": "VarnishInstanceType"
+        },
+        "EbsOptimized": "false",
+        "ImageId": {
+          "Ref": "VarnishAMI"
+        },
+        "InstanceMonitoring": false,
+        "KeyName": {
+          "Ref": "VarnishKeyName"
+        },
+        "SecurityGroups": [
+          {
+            "Ref": "VarnishSecurityGroup"
+          }
+        ],
+        "IamInstanceProfile": "arn:aws:iam::555859027902:instance-profile/aws-log-submitter",
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "\n",
+              [
+                "#!/bin/sh",
+                "cat <<'EOF'>/etc/render_templates_env.d/web.rb",
+                "Vars.web ||= {}",
+                "Vars.web[:flipit] = {",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  endpoint: '",
+                      {
+                        "Fn::GetAtt": [
+                          "WebElb",
+                          "CanonicalHostedZoneName"
+                        ]
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                "}",
+                "EOF",
+                "cat <<'EOF'>/etc/render_templates_env.d/s3.rb",
+                "Vars.s3 ||= {}",
+                "Vars.s3[:flipit] = {",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "  images: '",
+                      {
+                        "Ref": "S3ImagesBucket"
+                      },
+                      "',"
+                    ]
+                  ]
+                },
+                "}",
+                "EOF",
+                "/usr/sbin/render_templates",
+                "service nginx restart",
+                "service varnish restart"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "VarnishAutoscalingGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Condition": "EnableVarnishServer",
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinInstancesInService": "1",
+          "MaxBatchSize": "1",
+          "PauseTime": "PT3M30S"
+        }
+      },
+      "Properties": {
+        "LaunchConfigurationName": {
+          "Ref": "VarnishLaunchConfiguration"
+        },
+        "AvailabilityZones": [
+          {
+            "Fn::Select": [
+              0,
+              {
+                "Fn::GetAZs": ""
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              1,
+              {
+                "Fn::GetAZs": ""
+              }
+            ]
+          }
+        ],
+        "VPCZoneIdentifier": [
+          {
+            "Ref": "VarnishSubnetA"
+          },
+          {
+            "Ref": "VarnishSubnetB"
+          }
+        ],
+        "LoadBalancerNames": [
+          {
+            "Ref": "VarnishElb"
+          }
+        ],
+        "MinSize": {
+          "Ref": "VarnishMinInstances"
+        },
+        "DesiredCapacity": {
+          "Ref": "VarnishDesiredInstances"
+        },
+        "MaxSize": {
+          "Ref": "VarnishMaxInstances"
+        },
+        "HealthCheckType": "ELB",
+        "HealthCheckGracePeriod": 60,
+        "NotificationConfiguration": {
+          "TopicARN": "arn:aws:sns:eu-west-1:555859027902:Varnish",
+          "NotificationTypes": [
+            "autoscaling:EC2_INSTANCE_LAUNCH",
+            "autoscaling:EC2_INSTANCE_LAUNCH_ERROR",
+            "autoscaling:EC2_INSTANCE_TERMINATE",
+            "autoscaling:EC2_INSTANCE_TERMINATE_ERROR"
+          ]
+        }
+      }
+    },
+    "VarnishScaleUpPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Condition": "EnableVarnishServer",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "VarnishAutoscalingGroup"
+        },
+        "Cooldown": "300",
+        "ScalingAdjustment": "1"
+      }
+    },
+    "VarnishScaleDownPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Condition": "EnableVarnishServer",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "VarnishAutoscalingGroup"
+        },
+        "Cooldown": "300",
+        "ScalingAdjustment": "-1"
+      }
+    },
+    "VarnishCPUAlarmHigh": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Condition": "EnableVarnishServer",
+      "Properties": {
+        "AlarmDescription": "Scale-up if CPU > 60% for 2 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "60",
+        "EvaluationPeriods": "2",
+        "Threshold": "60",
+        "AlarmActions": [
+          {
+            "Ref": "VarnishScaleUpPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "VarnishAutoscalingGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold"
+      }
+    },
+    "VarnishCPUAlarmLow": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Condition": "EnableVarnishServer",
+      "Properties": {
+        "AlarmDescription": "Scale-down if CPU < 30% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "30",
+        "AlarmActions": [
+          {
+            "Ref": "VarnishScaleDownPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "VarnishAutoscalingGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    }
+  }
+}

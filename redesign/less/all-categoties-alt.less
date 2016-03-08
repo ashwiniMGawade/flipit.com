@@ -1,0 +1,280 @@
+@import "custom-variables.less";
+@import "custom-mixins.less";
+.all-categories-alt-page {
+	.section{padding:17px 19px;}
+	.catigories{
+		margin:0 -20px -16px 0;
+		overflow:hidden;
+		.box{
+			float:left;
+			text-align:center;
+			margin:0 17px 17px 0;
+			position:relative;
+			a{
+				display:block;
+				position:relative;
+				z-index:1;
+				&:hover{
+					.text-box{display:block;}
+					.image{
+						&:before{
+							background:rgba(56,56,55,0.9);
+						}
+					}
+					.caption{
+						background:rgba(32,32,32,0.9);
+					}
+				}
+			}
+		}
+		.text-box{
+			display:none;
+			position:absolute;
+			left:0;
+			top:0;
+			right:0;
+			z-index:10;
+			padding:12% 10px 5px;
+			color:@white-color;
+			font-size:15px;
+			line-height:18px;
+			text-align:center;
+			.num{
+				font-size:33px;
+				line-height:33px;
+				margin:0 0 7px;
+			}
+			span{
+				display:block;
+			}
+		}
+		.box-top{
+			.caption{
+				font-size:21px;
+				line-height:25px;
+				padding:33px 10px 41px;
+			}
+			.text-box{
+				font-size:18px;
+				line-height:22px;
+				padding-top:20%;
+				.num{
+					font-size:44px;
+					line-height:44px;
+				}
+			}
+		}
+		.image{
+			position:relative;
+			z-index:1;
+			&:before{
+				content:'';				position:absolute;				left:0;				bottom:0;
+				width:100%;				height:100%;
+				background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjM0JSIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMC42NSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+				background: -moz-linear-gradient(top,  rgba(0,0,0,0) 0%, rgba(0,0,0,0) 34%, rgba(0,0,0,0.65) 100%);
+				background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(34%,rgba(0,0,0,0)), color-stop(100%,rgba(0,0,0,0.65)));
+				background: -webkit-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,0) 34%,rgba(0,0,0,0.65) 100%);
+				background: -o-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,0) 34%,rgba(0,0,0,0.65) 100%);
+				background: -ms-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,0) 34%,rgba(0,0,0,0.65) 100%);
+				background: linear-gradient(to bottom,  rgba(0,0,0,0) 0%,rgba(0,0,0,0) 34%,rgba(0,0,0,0.65) 100%);
+			}
+		}
+		img{
+			display:block;
+			position:relative;
+			z-index:-1;
+		}
+		.caption{
+			position:absolute;
+			width:100%;
+			bottom:0;
+			left:0;
+			padding:13px 10px 21px;
+			z-index:2;
+			color:#f0f0f0;
+			font-size:15px;			line-height:18px;
+			.label{
+				display:inline-block;
+				vertical-align:top;
+				margin:0 0 10px;
+				border:1px solid @white-color;
+				.border-radius;
+				color: @white-color;
+				font-size: 10px;
+				line-height: 10px;
+				padding: 6px 10px;
+				text-transform:uppercase;
+			}
+			strong{
+				display:block;
+				text-shadow:0 0 15px rgba(0,0,0,.75);
+			}
+		}
+		.box-2{
+			.text-box{
+				padding-top:5%;
+				.num{margin:0;}
+			}
+		}
+	}
+	.section-newsletter{
+		padding:31px 6.3% 38px;
+		.newsletter{
+			position:relative;
+			padding:0 0 0 14.6%;
+			.after;
+			position:relative;
+			&:before{
+				content: "";
+				position: absolute;
+				left: 0;
+				top: 17px;
+				height: 68px;
+				width: 68px;
+				background: url(../images/sprite.png) no-repeat -95px -130px;
+			}
+			input[type="email"]{
+				width: 73.4%;
+				margin:0 2% 0 0;
+				background:#fafafa;
+				border-color:#d8d8d8;
+			}
+			.form-signin-heading{
+				font-size:21px;
+				line-height:24px;
+				margin:0 0 31px;
+			}
+			
+		}
+	}
+}
+@media only screen and (max-width: 1199px){
+	.all-categories-alt-page {
+		.catigories{
+			.box{
+				width:168px;
+				margin-bottom:16px;
+				.image{
+					img{
+						width:100%;
+						height:auto;
+					}
+				}
+			}
+			.box-top{width:352px;}
+		}
+	}
+}
+@media only screen and (max-width: 979px){
+	.all-categories-alt-page {
+		.section{padding:15px;}
+		.catigories{
+			.box{
+				width:164px;
+				margin:0 16px 16px 0;
+			}
+			.box-top{width:343px;}
+			.text-box{
+				padding-top:6%;
+				.num{
+					margin:0;
+					font-size:30px;
+					line-height:30px;
+				}
+			}
+		}
+	}
+}
+@media only screen and (max-width: 767px){
+	.all-categories-alt-page {
+		.content-box{padding:0 6px;}
+		.catigories{
+			margin:0 -6% -2% 0;
+			.box{
+				width:22%;
+				margin:0 2% 2% 0;
+			}
+			.box-top{width:46%;}
+		}
+		.content-box{padding:0;}
+	}
+}
+@media only screen and (max-width: 639px){
+	.all-categories-alt-page {
+		.section{padding:10px;}
+		.catigories{
+			margin:0 -2% -2% 0;
+			.box{
+				width:31.3%;
+				margin:0 2% 2% 0;
+			}
+			.text-box{
+				.num{
+					font-size:23px;
+					line-height:23px;
+				}
+			}
+			.box-top{
+				.caption{
+					font-size:15px;
+					line-height:18px;
+					padding:13px 10px 21px;
+				}
+				.text-box{
+					padding-top:6%;
+					font-size:15px;
+					line-height:18px;
+					.num{
+						font-size:23px;
+						line-height:23px;
+					}
+				}
+			}
+		}
+		.section-newsletter{
+			padding-bottom:12px;
+			.newsletter{
+				&:before{left:-10px;}
+				padding:0 0 0 68px;
+				.form-signin-heading{
+					font-size:18px;
+					line-height:22px;
+					margin:0 0 15px;
+				}
+				input[type="email"]{
+					float:none;
+					width:100%;
+					display:block;
+					margin:0 0 10px;
+				}
+				button[type="submit"]{
+					float:none;
+					width:100%;
+					display:block;
+				}
+			}
+		}
+	}
+}
+@media only screen and (max-width: 479px){
+	.all-categories-alt-page {
+		.catigories{
+			.box{
+				width:48%;
+				margin:0 2% 2% 0;
+			}
+			.text-box{padding-top:7%;}
+			.box-2{
+				.text-box{
+					padding-top:7%;
+				}
+			}
+			.caption{padding:10px 2px;}
+			.box-top{
+				.caption{
+					padding:10px 2px;
+				}
+			}
+		}
+	}
+}

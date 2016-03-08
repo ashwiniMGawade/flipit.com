@@ -1,0 +1,11 @@
+{
+  "name": "kortingscode",
+  "private": true,
+  "devDependencies": {
+    "jsontool": "> 7.0.0"
+  },
+  "scripts": {
+    "prestart": "for i in src/*.json ; do echo \"Updating $i\"; node_modules/.bin/json -j -f $i > /tmp/$(basename $i)  && cp /tmp/$(basename $i) $i ; done",
+    "start": "[ -x build ] || mkdir build ; for tpl in *.txt ; do ( for file in `cat $tpl` ; do cat src/$file.json ; echo ; done ) | node_modules/.bin/json -o json-0 --deep-merge > build/${tpl%.txt}.template; which jq 1>/dev/null && jq -S '.'  < build/${tpl%.txt}.template > build/${tpl%.txt}.json || continue; done"
+  }
+}

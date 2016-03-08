@@ -1,0 +1,49 @@
+{
+  "variables": {
+    "PACKER_AWS_ACCESS_KEY_ID": "{{env `PACKER_AWS_ACCESS_KEY_ID`}}",
+    "PACKER_AWS_SECRET_ACCESS_KEY": "{{env `PACKER_AWS_SECRET_ACCESS_KEY`}}",
+    "GIT_BRANCH": "{{env `GIT_BRANCH`}}",
+    "GIT_COMMIT": "{{user `GIT_COMMIT`}}",
+    "AWS_REGION": "{{env `AWS_REGION`}}",
+    "NAME": "{{env `NAME`}}",
+    "INSTANCE_TYPE": "m3.medium",
+    "SOURCE_AMI": "ami-07ba6c70"
+  },
+  "builders":
+    [
+        {
+            "type": "amazon-ebs",
+            "access_key": "{{user `PACKER_AWS_ACCESS_KEY_ID`}}",
+            "secret_key": "{{user `PACKER_AWS_SECRET_ACCESS_KEY`}}",
+            "region": "eu-west-1",
+            "source_ami": "ami-0307d674",
+            "instance_type": "m3.medium",
+            "ssh_username": "ubuntu",
+            "ami_name": "kortingscode-Varnish {{timestamp}}",
+            "ssh_timeout": "10m",
+            "security_group_id": "sg-cf617fad",
+            "tags": {
+              "SOURCE_AMI": "{{user `SOURCE_AMI`}}",
+              "GIT_BRANCH": "{{user `GIT_BRANCH`}}",
+              "GIT_COMMIT": "{{user `GIT_COMMIT`}}",
+              "Name": "{{user `NAME`}}",
+              "TIMESTAMP": "{{timestamp}}"
+            }
+        }
+    ],
+
+    "provisioners": [
+        {
+          "type": "file",
+          "source": "aws/packer/Varnish/scripts",
+          "destination": "/tmp/provision"
+        },
+        {
+            "type": "shell",
+            "inline": [
+                "bash /tmp/provision/build.sh",
+                "rm -rf /tmp/provision"
+            ]
+        }
+    ]
+}

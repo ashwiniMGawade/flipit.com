@@ -1,0 +1,72 @@
+@import "custom-variables.less";
+@import "custom-mixins.less";
+.authors-page {
+	.authors{
+		padding:0;		margin:0 -2px -1px 0;		list-style:none;
+		color:@grey-color;
+		font-size:14px;
+		overflow:hidden;
+		li{
+			display:table;
+			float:left;
+			width:33.3%;
+			height:276px;
+			text-align:center;
+			border-width:0 1px 1px 0;			border-style:solid;			border-color:@page-header-border-color;
+			a{
+				padding:10px;
+				display:table-cell;
+				vertical-align:middle;
+				&:hover,
+				&:focus{
+					text-decoration:none;
+					background:#f8f8f8;
+				}
+			}
+			h1{
+				font-size:21px;
+				line-height:28px;
+				font-weight:bold;
+				margin:0 0 10px;
+			}
+			span{display:block;}
+			.photo-image{
+				.border-radius;
+				box-shadow: 0 0 2px 1px rgba(0,0,0,.2);
+				display:block;
+				margin:0 auto 12px;
+			}
+			.status{
+				color:@white-color;
+				padding:2px 13px;
+				margin:0 0 9px;
+				.border-radius;
+				background:@blue-color;
+				display:inline-block;
+				vertical-align:top;
+				font-size:11px;
+				text-transform:uppercase;
+			}
+		}
+	}
+	#sidebar{
+		h2{margin:0 0 12px;}
+		p{margin:0 0 20px;}
+		.btn{
+			font-size:13px;
+			padding:14px 9px 13px;
+			height:41px;
+			min-width:179px;
+			margin:0 0 13px;
+		}
+	}
+}
+@media only screen and (max-width: 639px){
+	.authors-page {
+		.authors{
+			li{
+				width:50%;
+			}
+		}
+	}
+}

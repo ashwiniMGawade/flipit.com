@@ -1,0 +1,62 @@
+@import "custom-variables.less";
+@import "custom-mixins.less";
+.flipit-expired-page {
+	.message{
+		.holder{
+			padding:31px 30px 34px;
+		}
+		.text{
+			&:after{
+				content:'';
+				position:absolute;
+				z-index:2;
+				right:-24px;
+				top:97%;
+				background:url(../images/sprite.png) no-repeat -322px -224px;
+				width: 23px;
+				height: 87px;
+			}
+		}
+		.ico-warning{
+			vertical-align:middle;
+		}
+	}
+}
+@media only screen and (max-width: 979px){
+	.flipit-expired-page {
+		.message{
+			.holder{
+				padding:15px;
+			}
+		}
+	}
+}
+@media only screen and (max-width: 767px){
+	.flipit-expired-page {
+		.message{
+			.text{
+				&:after{
+					background-position:-259px -269px;
+					width: 12px;
+					height: 45px;
+					top:110%;
+					right:0;
+				}
+			}
+		}
+	}
+}
+@media only screen and (max-width: 479px){
+	.flipit-expired-page {
+		.message{
+			.holder{
+				padding:10px;
+			}
+			.text{
+				&:after{
+					top:97%;
+				}
+			}
+		}
+	}
+}
